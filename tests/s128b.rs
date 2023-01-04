@@ -1,15 +1,14 @@
 use poseidon;
-use poseidon::parameters::s128b::F253;
 use poseidon::hash_s128b as hash;
+use poseidon::convert::{scalar_from_u64s, scalar_from_u8s, felts_from_u8s, u8s_from_felts};
+use poseidon::parameters::s128b::F253;
 use ff::{PrimeField, Field};
 
 mod common;
 
 
-// static to_felts: fn(&[&str]) -> Vec<F253> = load_felts::<F253>;
-
 fn to_felts(input: &[&str]) -> Vec<F253> {
-    common::load_felts(input)
+    common::load_felts::<F253>(input)
 }
 
 
@@ -22,6 +21,40 @@ fn test_ff() {
     assert_eq!(F253::ZERO, b0);
     assert_eq!(F253::MULTIPLICATIVE_GENERATOR, b1); 
     assert_eq!(b1.pow([3]), b2);
+}
+
+#[test]
+fn test_ff_conversion() {
+    let a1: [u64; 4] = [7, 0, 0, 0];
+    let a1: F253 = scalar_from_u64s::<F253>(&a1);
+    let b1: F253 = F253::from(7);
+    assert_eq!(a1, b1);
+
+    let a2: [u8; 32] = [
+        87, 1, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+    ];
+    let a2: F253 = scalar_from_u8s::<F253>(&a2);
+    let b2: F253 = F253::from(343);
+    assert_eq!(a2, b2);
+
+    let a_felts = vec![b1.clone(), b2.clone()];
+    let a_u8s = u8s_from_felts::<F253>(&a_felts);
+    let b_u8s: [u8; 64] = [
+        7, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        87, 1, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+    ];
+    let b_felts = felts_from_u8s::<F253>(&b_u8s);
+    assert_eq!(a_u8s, b_u8s);
+    assert_eq!(a_felts, b_felts);
 }
 
 #[test]

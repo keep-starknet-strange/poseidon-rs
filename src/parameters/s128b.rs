@@ -8,7 +8,6 @@ use ff::*;
 #[PrimeFieldReprEndianness = "little"]
 pub struct F253([u64; 4]);
 
-
 pub const PARAMS: Parameters = Parameters {
     power: 3,
     rate: 2,

@@ -1,15 +1,12 @@
 //! Poseidon Hash Functions for Ethereum
 //!
-//! Implements poseidon hash function over finite fields using the Hades
-//! strategy. The hash function depends on several parameters, some tightly
-//! linked to security and non-trivial to generate. This is why multiple sets
-//! of parameters are implemented as part of the crate, parameters coming from
-//! various use-cases. However, if the users wish so, they can provide their
-//! own set of parameters.
+//! Implements poseidon family of hash function over finite fields.
+//! Hash functions depend on a set of parameters tightly linked to security.
+//! Multiple sets of parameters are included in the crate. However, if users
+//! wish so, they can provide their own set of parameters.
 //!
-//! Ultimately, the goal of this library is to be included in ethereum's
-//! execution layer such as Geth. The hash functions are therefore exported
-//! through a C ABI in a shared library.
+//! Hash functions are exported through a C ABI in a shared library.
+//! This allows the functions to be called in geth from golang.
 //!
 //! # Examples
 //! Hash functions are named hash_<params>, where <params> is the name of the
@@ -28,11 +25,17 @@
 // Implementation is done for PrimeFields.
 // Question remains of how to handle BinaryFields.
 // Other fields are probably not useful at this point.
-//
-pub mod parameters;
+
+pub mod convert;
+use convert::{felts_from_u8s, u8s_from_felts};
+
 pub mod permutation;
 pub use permutation::Poseidon;
+
+pub mod parameters;
 pub use parameters::s128b;
+// add more parameters here.
+
 
 pub fn hash_s128b(inputs: &[s128b::F253]) -> Vec<s128b::F253> {
     const M: usize = s128b::MDS.len();
@@ -42,4 +45,24 @@ pub fn hash_s128b(inputs: &[s128b::F253]) -> Vec<s128b::F253> {
         .expect("Testing")
 }
 
-// Should add a C-Interface to call hash functions from shared_library.
+// C-Interface for the hash function
+#[no_mangle]
+pub extern "C" fn c_hash_s128b(input: *const u8, input_len: usize, output: *mut u8, output_len: usize) -> usize {
+    let input = unsafe {
+        assert!(!input.is_null());
+        std::slice::from_raw_parts(input, input_len)
+    };
+    let input = felts_from_u8s(&input);
+
+    let result = hash_s128b(&input);
+    let result = u8s_from_felts(&result);
+
+    let count = result.len().min(output_len);
+    // let src = result.as_ptr();
+    let output = unsafe {
+        assert!(!output.is_null());
+        std::slice::from_raw_parts_mut(output, output_len)
+    };
+    output.copy_from_slice(&result);
+    count
+}
