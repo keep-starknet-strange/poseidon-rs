@@ -3,35 +3,57 @@ name: test
 on: [push, pull_request]
 
 jobs:
-  build:
-    name: build
+  check:
+    name: check
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - run: |
-          wget https://github.com/starkware-libs/cairo/releases/download/v0.1.0/cairo-lang-0.1.0-x86_64-unknown-linux-musl.tar.gz
-          tar -xvf cairo-lang-0.1.0-x86_64-unknown-linux-musl.tar.gz
-          export PATH=$PATH:$(pwd)/cairo/bin
-          make build
-
-  run:
-    name: run
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - run: |
-          wget https://github.com/starkware-libs/cairo/releases/download/v0.1.0/cairo-lang-0.1.0-x86_64-unknown-linux-musl.tar.gz
-          tar -xvf cairo-lang-0.1.0-x86_64-unknown-linux-musl.tar.gz
-          export PATH=$PATH:$(pwd)/cairo/bin
-          make run
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          profile: minimal
+          override: true
+      - uses: Swatinem/rust-cache@v2
+      - uses: actions-rs/cargo@v1
+        with:
+          command: check
 
   test:
     name: test
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - run: |
-          wget https://github.com/starkware-libs/cairo/releases/download/v0.1.0/cairo-lang-0.1.0-x86_64-unknown-linux-musl.tar.gz
-          tar -xvf cairo-lang-0.1.0-x86_64-unknown-linux-musl.tar.gz
-          export PATH=$PATH:$(pwd)/cairo/bin
-          make test
+      - name: Setup rust env
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          profile: minimal
+          components: llvm-tools-preview
+          override: true
+      - name: Retreive cached dependecies
+        uses: Swatinem/rust-cache@v2
+      - name: Setup coverage env
+        uses: taiki-e/install-action@cargo-llvm-cov
+      - name: Generate code coverage
+        run: cargo llvm-cov --all-features --lcov --output-path lcov.info
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          files: lcov.info
+          fail_ci_if_error: false
+
+  fmt:
+    name: fmt
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          profile: minimal
+          override: true
+      - run: rustup component add rustfmt
+      - uses: actions-rs/cargo@v1
+        with:
+          command: fmt
+          args: --all -- --check
