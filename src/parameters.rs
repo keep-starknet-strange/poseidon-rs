@@ -4,8 +4,7 @@ pub mod s128b;
 // use std::str::FromStr;
 use ff::PrimeField;
 
-pub struct Parameters
-{
+pub struct Parameters {
     pub power: u8,
     pub rate: usize,
     pub capacity: usize,
@@ -16,8 +15,7 @@ pub struct Parameters
 
 pub fn load_mds<F, const M: usize>(mat: &[[&'static str; M]; M]) -> [[F; M]; M]
 where
-    F: PrimeField
-    // F: PrimeField + FromStr, <F as FromStr>::Err: Debug
+    F: PrimeField, // F: PrimeField + FromStr, <F as FromStr>::Err: Debug
 {
     let mut result = [[F::ZERO; M]; M];
     for i in 0..M {
@@ -30,8 +28,7 @@ where
 
 pub fn load_rk<F, const M: usize, const N: usize>(mat: &[[&'static str; M]; N]) -> [[F; M]; N]
 where
-    F: PrimeField
-    // F: PrimeField + FromStr, <F as FromStr>::Err: Debug
+    F: PrimeField, // F: PrimeField + FromStr, <F as FromStr>::Err: Debug
 {
     let mut result = [[F::ZERO; M]; N];
     for i in 0..M {

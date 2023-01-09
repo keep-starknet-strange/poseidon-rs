@@ -21,7 +21,6 @@
 //! let h = hash_s128b(&inputs);
 //! ```
 
-
 // Implementation is done for PrimeFields.
 // Question remains of how to handle BinaryFields.
 // Other fields are probably not useful at this point.
@@ -36,7 +35,6 @@ pub mod parameters;
 pub use parameters::s128b;
 // add more parameters here.
 
-
 pub fn hash_s128b(inputs: &[s128b::F253]) -> Vec<s128b::F253> {
     const M: usize = s128b::MDS.len();
     const N: usize = s128b::RK.len();
@@ -47,7 +45,12 @@ pub fn hash_s128b(inputs: &[s128b::F253]) -> Vec<s128b::F253> {
 
 // C-Interface for the hash function
 #[no_mangle]
-pub extern "C" fn c_hash_s128b(input: *const u8, input_len: usize, output: *mut u8, output_len: usize) -> usize {
+pub extern "C" fn c_hash_s128b(
+    input: *const u8,
+    input_len: usize,
+    output: *mut u8,
+    output_len: usize,
+) -> usize {
     let input = unsafe {
         assert!(!input.is_null());
         std::slice::from_raw_parts(input, input_len)

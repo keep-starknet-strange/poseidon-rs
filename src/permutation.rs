@@ -1,7 +1,6 @@
 // use std::str::FromStr;
+use crate::parameters::{load_mds, load_rk, Parameters};
 use ff::*;
-use crate::parameters::{Parameters, load_mds, load_rk};
-
 
 pub struct Poseidon<Fr, const M: usize, const N: usize> {
     params: &'static Parameters,
@@ -10,9 +9,13 @@ pub struct Poseidon<Fr, const M: usize, const N: usize> {
 }
 impl<Fr, const M: usize, const N: usize> Poseidon<Fr, M, N>
 where
-    Fr: PrimeField
+    Fr: PrimeField,
 {
-    pub fn new(params: &'static Parameters, mds: &[[&'static str; M]; M], rk: &[[&'static str; M]; N]) -> Self {
+    pub fn new(
+        params: &'static Parameters,
+        mds: &[[&'static str; M]; M],
+        rk: &[[&'static str; M]; N],
+    ) -> Self {
         Poseidon {
             params: params,
             mds_matrix: load_mds(mds),
@@ -59,13 +62,13 @@ where
     pub fn permute(&self, state: &mut Vec<Fr>, input: &[Fr]) {
         // let n_full_rounds = params.n_full_rounds.clone();
         // let n_partial_rounds = params.n_partial_rounds[t - 2].clone();
-    
+
         for i in 0..input.len() {
             state[i].add_assign(input[i]);
         }
         let rf = self.params.n_full_rounds / 2;
         let rp = self.params.n_partial_rounds;
-    
+
         for i in 0..rf {
             self.ark(state, i);
             self.sbox_full(state);
@@ -76,24 +79,28 @@ where
             self.sbox_partial(state);
             self.mix(state);
         }
-        for i in (rf + rp)..(2*rf + rp) {
+        for i in (rf + rp)..(2 * rf + rp) {
             self.ark(state, i);
             self.sbox_full(state);
             self.mix(state);
         }
     }
 
-    pub fn hash(&self, inputs: &[Fr]) -> Result<Vec<Fr>, String>
-    {
+    pub fn hash(&self, inputs: &[Fr]) -> Result<Vec<Fr>, String> {
         if inputs.len() == 0 {
             return Err("Empty inputs".to_string());
         }
         let n_remaining = inputs.len() % self.params.rate;
         // Fixed length hash only. How to handle otherwise? Is padding safe?
         if n_remaining != 0 {
-            return Err(format!("Input length {} must be a multiple of the hash rate {}", inputs.len(), self.params.rate).to_string());
+            return Err(format!(
+                "Input length {} must be a multiple of the hash rate {}",
+                inputs.len(),
+                self.params.rate
+            )
+            .to_string());
         }
-    
+
         let mut state = vec![Fr::ZERO; M];
         // let rate = usize::try_from(self.params.rate).unwrap();
         for i in (0..inputs.len()).step_by(self.params.rate) {
@@ -108,8 +115,8 @@ where
 mod test_permutation {
     use super::*;
     use crate::parameters::s128b;
-    use ff::{PrimeField, Field};
-    
+    use ff::{Field, PrimeField};
+
     fn get_input() -> Vec<s128b::F253> {
         let b1: s128b::F253 = s128b::F253::from(7);
         let b2: s128b::F253 = s128b::F253::from(98);
@@ -118,7 +125,7 @@ mod test_permutation {
 
     fn load_felts<F, const M: usize>(arr: &[&str; M]) -> Vec<F>
     where
-        F: PrimeField
+        F: PrimeField,
     {
         let mut result = vec![F::ZERO; M];
         for i in 0..M {
@@ -160,8 +167,8 @@ mod test_permutation {
         let mut state = load_felts::<s128b::F253, M>(&state);
         hash.sbox_full(&mut state);
         let expected = [
-            "9033127700447853090229678702028773675793347128105171639302548972716183808266", 
-            "12584005788907507820847858681541330081079761745009746063606627523756483557914", 
+            "9033127700447853090229678702028773675793347128105171639302548972716183808266",
+            "12584005788907507820847858681541330081079761745009746063606627523756483557914",
             "481502024243180892202073663390242313819723218601880119953632240938269076973",
         ];
         let expected = load_felts::<s128b::F253, M>(&expected);
@@ -195,8 +202,8 @@ mod test_permutation {
         const N: usize = s128b::RK.len();
         let hash = Poseidon::<s128b::F253, M, N>::new(&s128b::PARAMS, &s128b::MDS, &s128b::RK);
         let state = [
-            "9033127700447853090229678702028773675793347128105171639302548972716183808266", 
-            "12584005788907507820847858681541330081079761745009746063606627523756483557914", 
+            "9033127700447853090229678702028773675793347128105171639302548972716183808266",
+            "12584005788907507820847858681541330081079761745009746063606627523756483557914",
             "481502024243180892202073663390242313819723218601880119953632240938269076973",
         ];
         let mut state = load_felts::<s128b::F253, M>(&state);
