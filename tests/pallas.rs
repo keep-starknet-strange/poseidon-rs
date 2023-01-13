@@ -1,7 +1,6 @@
 use poseidon::convert::felts_from_str;
-use poseidon::parameters::pallas::GF;
 use poseidon::hash_pallas as hash;
-
+use poseidon::parameters::pallas::GF;
 
 #[test]
 fn test_hash_simple() {

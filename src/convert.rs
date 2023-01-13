@@ -1,9 +1,8 @@
 use ff::PrimeField;
 
-
-pub fn felts_from_str<GF> (constants: &[&'static str]) -> Vec<GF>
+pub fn felts_from_str<GF>(constants: &[&'static str]) -> Vec<GF>
 where
-    GF: PrimeField
+    GF: PrimeField,
 {
     let mut result = vec![GF::ZERO; constants.len()];
     for i in 0..constants.len() {
@@ -54,7 +53,6 @@ where
     }
     output
 }
-
 
 pub fn scalar_from_u64s<GF>(parts: &[u64]) -> GF
 where

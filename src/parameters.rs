@@ -9,7 +9,6 @@ mod mina;
 pub use mina::pallas;
 pub use mina::vesta;
 
-
 pub struct Parameters {
     pub power: u8,
     pub rate: usize,

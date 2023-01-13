@@ -29,18 +29,17 @@ pub mod convert;
 use convert::{felts_from_u8s, u8s_from_felts};
 
 pub mod permutation;
-pub use permutation::{Poseidon, hash};
+pub use permutation::{hash, Poseidon};
 
 pub mod parameters;
+pub use parameters::pallas;
 pub use parameters::s128b;
 pub use parameters::sw2;
 pub use parameters::sw3;
 pub use parameters::sw4;
 pub use parameters::sw8;
-pub use parameters::pallas;
 pub use parameters::vesta;
 // add more parameters here.
-
 
 pub fn hash_s128b(inputs: &[s128b::GF]) -> Vec<s128b::GF> {
     hash::<s128b::GF>(inputs, &s128b::PARAMS).unwrap()

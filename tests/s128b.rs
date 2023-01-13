@@ -1,9 +1,10 @@
 use ff::{Field, PrimeField};
 use poseidon;
-use poseidon::convert::{felts_from_str, felts_from_u8s, scalar_from_u64s, scalar_from_u8s, u8s_from_felts};
+use poseidon::convert::{
+    felts_from_str, felts_from_u8s, scalar_from_u64s, scalar_from_u8s, u8s_from_felts,
+};
 use poseidon::hash_s128b as hash;
 use poseidon::parameters::s128b::GF;
-
 
 #[test]
 fn test_ff() {

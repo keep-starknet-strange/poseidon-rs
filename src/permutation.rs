@@ -14,9 +14,7 @@ impl<'a, GF> Poseidon<'a, GF>
 where
     GF: PrimeField,
 {
-    pub fn new(
-        params: &'a Parameters,
-    ) -> Self {
+    pub fn new(params: &'a Parameters) -> Self {
         Poseidon {
             params: params,
             mds_matrix: felts_from_str(params.mds_matrix),
@@ -29,7 +27,7 @@ where
     fn ark(&mut self, round: usize) {
         let size = self.state.len();
         for i in 0..size {
-            self.state[i].add_assign(&self.round_constants[round*size + i]);
+            self.state[i].add_assign(&self.round_constants[round * size + i]);
         }
     }
 
@@ -55,7 +53,7 @@ where
         let mut new_state = vec![GF::ZERO; size];
         for i in 0..size {
             for j in 0..size {
-                let mut mij = self.mds_matrix[i*size + j];
+                let mut mij = self.mds_matrix[i * size + j];
                 mij.mul_assign(&self.state[j]);
                 new_state[i].add_assign(&mij);
             }
@@ -106,11 +104,8 @@ where
     }
 }
 
-pub fn hash<'a, GF> (
-        inputs: &'a [GF],
-        params: &'a Parameters,
-    ) -> Result<Vec<GF>, String>
-where 
+pub fn hash<'a, GF>(inputs: &'a [GF], params: &'a Parameters) -> Result<Vec<GF>, String>
+where
     GF: PrimeField,
 {
     if inputs.len() == 0 {
@@ -137,12 +132,11 @@ where
     Ok(result)
 }
 
-
 #[cfg(test)]
 mod test_permutation {
     use super::*;
-    use crate::convert::{felts_from_str};
-    use crate::parameters::s128b::{PARAMS, GF};
+    use crate::convert::felts_from_str;
+    use crate::parameters::s128b::{GF, PARAMS};
 
     #[test]
     fn test_ark() {
