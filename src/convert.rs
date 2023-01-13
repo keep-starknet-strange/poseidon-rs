@@ -1,34 +1,30 @@
-// use libc;
-// use libc::size_t;
 use ff::PrimeField;
 
-pub fn scalar_from_u64s<Fr>(parts: &[u64]) -> Fr
+pub fn felts_from_str<GF>(constants: &[&'static str]) -> Vec<GF>
 where
-    Fr: PrimeField,
+    GF: PrimeField,
 {
-    let mut le_bytes = vec![0u8; parts.len() * 8];
-    for i in (0..le_bytes.len()).step_by(8) {
-        le_bytes[i..(i + 8)].copy_from_slice(&parts[i / 8].to_le_bytes());
+    let mut result = vec![GF::ZERO; constants.len()];
+    for i in 0..constants.len() {
+        result[i] = GF::from_str_vartime(constants[i]).unwrap();
     }
-    let mut repr = <Fr as PrimeField>::Repr::default();
-    repr.as_mut().copy_from_slice(&le_bytes[..]);
-    Fr::from_repr_vartime(repr).expect("u64s exceeds field modulus")
+    result
 }
 
-pub fn scalar_from_u8s<Fr>(parts: &[u8]) -> Fr
+pub fn scalar_from_u8s<GF>(parts: &[u8]) -> GF
 where
-    Fr: PrimeField,
+    GF: PrimeField,
 {
-    let mut repr = Fr::Repr::default();
+    let mut repr = GF::Repr::default();
     repr.as_mut().copy_from_slice(&parts[..]);
-    Fr::from_repr_vartime(repr).expect("u64s exceeds field modulus")
+    GF::from_repr_vartime(repr).expect("u64s exceeds field modulus")
 }
 
-pub fn felts_from_u8s<Fr>(parts: &[u8]) -> Vec<Fr>
+pub fn felts_from_u8s<GF>(parts: &[u8]) -> Vec<GF>
 where
-    Fr: PrimeField,
+    GF: PrimeField,
 {
-    let n_bytes = Fr::ZERO.to_repr().as_ref().len();
+    let n_bytes = GF::ZERO.to_repr().as_ref().len();
     if parts.len() % n_bytes != 0 {
         panic!(
             "Incorrect length for felts: {} is not a multiple of {}",
@@ -37,19 +33,19 @@ where
         );
     }
     let size = parts.len() / n_bytes;
-    let mut output = vec![Fr::ZERO; size];
+    let mut output = vec![GF::ZERO; size];
     for i in (0..parts.len()).step_by(n_bytes) {
         output[i / n_bytes] = scalar_from_u8s(&parts[i..(i + n_bytes)]);
     }
     output
 }
 
-pub fn u8s_from_felts<Fr>(state: &[Fr]) -> Vec<u8>
+pub fn u8s_from_felts<GF>(state: &[GF]) -> Vec<u8>
 where
-    Fr: PrimeField,
+    GF: PrimeField,
 {
     // let num_bytes_per_felt = (len as usize) / state.len();
-    let n_bytes = Fr::ZERO.to_repr().as_ref().len();
+    let n_bytes = GF::ZERO.to_repr().as_ref().len();
     let size = state.len() * n_bytes;
     let mut output = vec![0u8; size];
     for i in (0..size).step_by(n_bytes) {
@@ -58,22 +54,15 @@ where
     output
 }
 
-// pub extern fn (state, buffer *mut u8, len: size_t) {
-//     unsafe {
-//         if (len as usize) > size {
-//             len = size;
-//         }
-//         std::ptr::copy_nonoverlapping(&output, buffer, len as usize);
-//     }
-// }
-
-// pub fn u64s_from_scalar<Fr>(elt: Fr) -> Vec<u64>
-// where
-//     Fr: PrimeField
-// {
-//     let repr = elt.to_repr();
-//     let mut le_bytes = vec![0u8; repr.len()];
-//     le_bytes.copy_from_slice(&repr);
-//     let output = vec![0u64; 4];
-//     output
-// }
+pub fn scalar_from_u64s<GF>(parts: &[u64]) -> GF
+where
+    GF: PrimeField,
+{
+    let mut le_bytes = vec![0u8; parts.len() * 8];
+    for i in (0..le_bytes.len()).step_by(8) {
+        le_bytes[i..(i + 8)].copy_from_slice(&parts[i / 8].to_le_bytes());
+    }
+    let mut repr = <GF as PrimeField>::Repr::default();
+    repr.as_mut().copy_from_slice(&le_bytes[..]);
+    GF::from_repr_vartime(repr).expect("u64s exceeds field modulus")
+}
