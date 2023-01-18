@@ -13,4 +13,4 @@ ff = {version="0.13.0", features=["derive"]}
 libc = "0.2.139"
 
 [lib]
-crate-type = ["cdylib", "lib"]
+crate-type = ["staticlib", "lib"]

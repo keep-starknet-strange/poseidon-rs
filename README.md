@@ -72,7 +72,7 @@ This section describes how a hash of a message $M$ is computed using Poseidon.
 
 Poseidon uses the sponge/squeeze technique to hash a message with an arbitrary size into a fixed-size output (see [Fig1](#figure-1-global-overview-of-a-poseidon-hash)).
 
-The sponge has a state $S = (S_{1}, …, S_{t})$ made of $t$ field elements. The state is initialized to zeros. It can absorb $r$ field elements at a time, where $r$ is the input rate $(r < t)$ or it can squeeze elements out.
+The sponge has a state $S = (S_{1}, …, S_{t})$ made of $t$ field elements, initialized to zero. The state is divided into the outer state and the inner state, made of $r$ (rate) and $c$ (capacity) elements respectively.
 
 <div align="center">
  
@@ -80,9 +80,15 @@ The sponge has a state $S = (S_{1}, …, S_{t})$ made of $t$ field elements. The
   <img src="docs/images/rm-poseidon-fig-1.svg">
 </div>
 
-To absorb a message of $r$ elements, the sponge adds it to its state’s $r$ first components and applies the poseidon-permutation, leaving the sponge in a new state (see [Fig2](#figure-2-absorption)). More elements can be absorbed at will.
+A sponge supports 2 operations: it can either absorb field elements or squeeze elements out.
 
-To squeeze elements out, the sponge returns all or a part of its state and applies the Poseidon-permutation to its state.
+To absorb a message of $r$ elements, the sponge adds the message to its outer state and applies the poseidon-permutation, leaving the sponge in a new state (see [Fig2](#figure-2-absorption)). More elements can be absorbed at will.
+
+To squeeze elements out, the sponge returns all or a part of its outer state and applies the Poseidon-permutation to its state.
+
+To hash a message, we first absorb it entirely and then squeeze the required number of elements out.
+
+>The inner state is opaque: inputs don't directly modify it and it is never part of outputs. It is essential for security.
 
 <div align="center">
 
@@ -90,7 +96,9 @@ To squeeze elements out, the sponge returns all or a part of its state and appli
   <img src="docs/images/rm-poseidon-fig-2.svg">
 </div>
 
->Note that although our implementation allows to mix absorption and squeezing phases, hash functions work by absorbing all the message first, and then squeezing once to get the message hash (see [Fig1](#figure-1-global-overview-of-a-poseidon-hash)). 
+
+>Our implementation hash messages of length a multiple of the rate only. Supporting variable-length messages would require a sponge-compliant padding rule. 
+
 
 ### Poseidon Permutation 
 
@@ -109,7 +117,7 @@ A round function consists of 3 transformations that modify the state:
 - S-box: a substitution box, $Sbox(x)=x^α$, is applied with α chosen such that $gcd⁡(α,p-1)=1$.
 - Mix: the state is mixed through a multiplication by a $t×t$ [MDS matrix](https://en.wikipedia.org/wiki/MDS_matrix).
 
-In a full round function S-boxes are applied to the full state while a partial round function contains a single S-box. Detailed overviews of both functions are given in [Fig4](#figure-5-partial-round-overview) and [Fig5](#figure-5-partial-round-overview).
+In a full round function, S-boxes are applied to the full state while a partial round function contains a single S-box. Detailed overviews of both functions are given in [Fig4](#figure-5-partial-round-overview) and [Fig5](#figure-5-partial-round-overview).
 
 <div align="center">
 
@@ -123,7 +131,7 @@ In a full round function S-boxes are applied to the full state while a partial r
 
 ### Constants Selection
 
-Security of the hash function depends on the selection of adequate round constants and MDS matrix. In turn, these constants depend on the finite field, the number of rounds, the rate and the capacity. This makes the Poseidon hash function family flexible, but one has to manage the parameters in some way.
+Hash's security depends on the selection of adequate round constants and MDS matrix. In turn, these constants depend on the finite field, the number of rounds, the rate and the capacity. This makes the Poseidon hash function family flexible, but one has to manage the parameters in some way.
 
 Several propositions were made to overcome this difficulty in the context of EIP-5988, [among them those proposed by vbuterin](https://ethereum-magicians.org/t/eip-5988-add-poseidon-hash-function-precompile/11772) :
 
@@ -135,13 +143,14 @@ As a first step, we have chosen the first approach. Different set of parameters 
 
 ### Parameters 
 
-Parameters include: 
+Parameters either pertains to the sponge construct or the permutation:
 
-- The finite field, completely specified by its size. 
-- The rate and the capacity. 
-- The number of full and partial rounds. 
-- The number of elements in the output. 
-- The round constants and the MDS matrix. 
+- Sponge:
+    - The rate and the capacity. 
+- Permutation:
+    - The finite field, completely specified by its size. 
+    - The number of full and partial rounds. 
+    - The round constants and the MDS matrix. 
 
 The following set of parameters are included in the library thus far: 
 
