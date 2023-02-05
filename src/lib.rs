@@ -28,6 +28,8 @@
 pub mod convert;
 use convert::{felts_from_u8s, u8s_from_felts};
 
+pub mod fields;
+
 pub mod permutation;
 pub use permutation::{hash, Poseidon};
 
