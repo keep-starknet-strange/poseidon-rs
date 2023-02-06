@@ -1,27 +1,22 @@
 use super::{
-    Zero,
-    Field,
-    arithmetic::{
-        adc,
-        div_rem,
-    },
+    arithmetic::{adc, div_rem},
+    Field, Zero,
 };
 
-use core::marker::{Copy, PhantomData};
 use core::clone::Clone;
+use core::marker::{Copy, PhantomData};
 use core::unimplemented;
 
 pub trait FpConfig<const N: usize>: Copy + Clone {
     const MODULUS: [u64; N];
 }
 
-pub trait PrimeField<P: FpConfig<N>, const N: usize>: Field<N>
-{
+pub trait PrimeField<P: FpConfig<N>, const N: usize>: Field<N> {
     fn reduce(&mut self);
 }
 
 #[derive(Copy, Clone)]
-pub struct Fp<P: FpConfig<N>, const N: usize> (pub [u64; N], pub PhantomData<P>);
+pub struct Fp<P: FpConfig<N>, const N: usize>(pub [u64; N], pub PhantomData<P>);
 
 impl<P: FpConfig<N>, const N: usize> PrimeField<P, N> for Fp<P, N> {
     fn reduce(&mut self) {
@@ -59,7 +54,7 @@ impl<P: FpConfig<N>, const N: usize> AsMut<[u64; N]> for Fp<P, N> {
 
 impl<P: FpConfig<N>, const N: usize> From<[u64; N]> for Fp<P, N> {
     fn from(value: [u64; N]) -> Self {
-        Self(value, PhantomData)  // Missing Modulus
+        Self(value, PhantomData) // Missing Modulus
     }
 }
 
@@ -79,20 +74,20 @@ impl<P: FpConfig<N>, const N: usize> Field<N> for Fp<P, N> {
 
         // Least-significant zeros have no effect on the output.
         // if let Some(&0) = other.0[0] {
-            // if let Some(nz) = other.0.iter().position(|&d| d != 0) {
-                // b = &b[nz..];
-                // acc = &mut acc[nz..];
-            // } else {
-                // return;
-            // }
+        // if let Some(nz) = other.0.iter().position(|&d| d != 0) {
+        // b = &b[nz..];
+        // acc = &mut acc[nz..];
+        // } else {
+        // return;
+        // }
         // }
         // if let Some(&0) = c.first() {
-            // if let Some(nz) = c.iter().position(|&d| d != 0) {
-                // c = &c[nz..];
-                // acc = &mut acc[nz..];
-            // } else {
-                // return;
-            // }
+        // if let Some(nz) = c.iter().position(|&d| d != 0) {
+        // c = &c[nz..];
+        // acc = &mut acc[nz..];
+        // } else {
+        // return;
+        // }
         // }
 
         // let acc = acc;
@@ -104,25 +99,25 @@ impl<P: FpConfig<N>, const N: usize> Field<N> for Fp<P, N> {
         // }
     }
 
-//    if c == 0 {
-//        return;
-//    }
-//
-//    let mut carry = 0;
-//    let (a_lo, a_hi) = acc.split_at_mut(b.len());
-//
-//    for (a, &b) in a_lo.iter_mut().zip(b) {
-//        *a = mac_with_carry(*a, b, c, &mut carry);
-//    }
-//
-//    let (carry_hi, carry_lo) = big_digit::from_doublebigdigit(carry);
-//
-//    let final_carry = if carry_hi == 0 {
-//        __add2(a_hi, &[carry_lo])
-//    } else {
-//        __add2(a_hi, &[carry_hi, carry_lo])
-//    };
-//    assert_eq!(final_carry, 0, "carry overflow during multiplication!");
+    //    if c == 0 {
+    //        return;
+    //    }
+    //
+    //    let mut carry = 0;
+    //    let (a_lo, a_hi) = acc.split_at_mut(b.len());
+    //
+    //    for (a, &b) in a_lo.iter_mut().zip(b) {
+    //        *a = mac_with_carry(*a, b, c, &mut carry);
+    //    }
+    //
+    //    let (carry_hi, carry_lo) = big_digit::from_doublebigdigit(carry);
+    //
+    //    let final_carry = if carry_hi == 0 {
+    //        __add2(a_hi, &[carry_lo])
+    //    } else {
+    //        __add2(a_hi, &[carry_hi, carry_lo])
+    //    };
+    //    assert_eq!(final_carry, 0, "carry overflow during multiplication!");
 
     fn pow_assign(&mut self, _other: &Self) {
         unimplemented!();
@@ -132,12 +127,12 @@ impl<P: FpConfig<N>, const N: usize> Field<N> for Fp<P, N> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use core::marker::Copy;
     use core::clone::Clone;
+    use core::marker::Copy;
 
     #[derive(Copy, Clone)]
     pub struct P;
-    impl FpConfig::<2> for P {
+    impl FpConfig<2> for P {
         const MODULUS: [u64; 2] = [5, 1];
     }
 
