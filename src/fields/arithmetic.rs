@@ -9,8 +9,8 @@ use core::debug_assert;
 
 // ------------------------  Digits Operations  ---------------------------------
 
-pub const BITS: u64 = 64;
-pub const MAX: u64 = ((1u128 << BITS) - 1) as u64;
+pub const BITS: u32 = u64::BITS;
+pub const MAX: u64 = u64::MAX;
 
 // Double 
 #[inline(always)]
@@ -180,7 +180,7 @@ mod tests {
         assert_eq!(as_dbl_digit(lo, hi), val);
     }
 
-    fn sbb_test(a: u64, b: u64, c: u8) -> (u128, u128) {
+    fn sbb_invariants(a: u64, b: u64, c: u8) -> (u128, u128) {
         let mut new_a = a;
         let new_c = sbb(&mut new_a, b, c);
         let before: u128 = as_dbl_digit(a, new_c as u64);
@@ -190,17 +190,17 @@ mod tests {
 
     #[test]
     fn sbb_no_borrow() {
-        let (before, after) = sbb_test(56, 34, 0);
+        let (before, after) = sbb_invariants(56, 34, 0);
         assert_eq!(before, after);
     }
 
     #[test]
     fn sbb_with_borrow() {
-        let (before, after) = sbb_test(23, 33, 1);
+        let (before, after) = sbb_invariants(23, 33, 1);
         assert_eq!(before, after);
     }
 
-    fn adc_test(a: u64, b: u64, c: u64) -> (u128, u128) {
+    fn adc_invariants(a: u64, b: u64, c: u64) -> (u128, u128) {
         let mut new_a: u64 = a;
         let new_c = adc(&mut new_a, b, c);
         let res: u128 = as_dbl_digit(new_a, new_c) - (b as u128) - (c as u128);
@@ -211,17 +211,17 @@ mod tests {
 
     #[test]
     fn adc_no_carry() {
-        let (before, after) = adc_test(54, 32, 1);
+        let (before, after) = adc_invariants(54, 32, 1);
         assert_eq!(before, after);
     }
 
     #[test]
     fn adc_with_carry() {
-        let (before, after) = adc_test((1 << 63) + 3, 1 << 63, 0);
+        let (before, after) = adc_invariants((1 << 63) + 3, 1 << 63, 0);
         assert_eq!(before, after);
     }
 
-    fn mac_test(a: u64, b: u64, c: u64, d: u64) -> (u128, u128) {
+    fn mac_invariants(a: u64, b: u64, c: u64, d: u64) -> (u128, u128) {
         let mut new_a: u64 = a;
         let new_d = mac(&mut new_a, b, c, d);
         let before: u128 = (a as u128) + (b as u128) * (c as u128) + (d as u128);
@@ -231,13 +231,40 @@ mod tests {
 
     #[test]
     fn mac_no_carry() {
-        let (before, after) = mac_test(12, 3, 5, 1);
+        let (before, after) = mac_invariants(12, 3, 5, 1);
         assert_eq!(before, after);
     }
 
     #[test]
     fn mac_with_carry() {
-        let (before, after) = mac_test(10, 1 << 63, 32, 0);
+        let (before, after) = mac_invariants(10, 1 << 63, 32, 0);
         assert_eq!(before, after);
+    }
+
+    #[test]
+    fn add2_no_carry() {
+        let mut a: [u64; 2] = [2, 3];
+        let b: [u64; 2] = [3, 5];
+        let expected: ([u64; 2], u64) = ([5, 8], 0);
+        let carry = add2::<2>(&mut a, &b);
+        assert_eq!((a, carry), expected);
+    }
+
+    #[test]
+    fn add2_with_inner_carry() {
+        let mut a: [u64; 2] = [u64::MAX, 3];
+        let b: [u64; 2] = [3, 5];
+        let expected: ([u64; 2], u64) = ([2, 9], 0);
+        let carry = add2::<2>(&mut a, &b);
+        assert_eq!((a, carry), expected);
+    }
+
+    #[test]
+    fn add2_with_final_carry() {
+        let mut a: [u64; 2] = [u64::MAX, u64::MAX];
+        let b: [u64; 2] = [3, 5];
+        let expected: ([u64; 2], u64) = ([2, 5], 1);
+        let carry = add2::<2>(&mut a, &b);
+        assert_eq!((a, carry), expected);
     }
 }
