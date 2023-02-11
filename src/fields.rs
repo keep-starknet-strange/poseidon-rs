@@ -1,10 +1,10 @@
 use core::{
     clone::Clone,
+    cmp::{Eq, PartialEq},
     convert::{AsMut, AsRef},
-    marker::Copy,
     default::Default,
-    cmp::{PartialEq, Eq},
     fmt::Debug,
+    marker::Copy,
 };
 // use core::iter::IntoIterator;
 // use core::ops::{Add, Mul};

@@ -1,21 +1,21 @@
 use super::{
-    arithmetic::{mac, adc, add2, sub2, div_rem},
+    arithmetic::{adc, add2, div_rem, mac, sub2},
     Field,
 };
 
 use core::{
     // debug_assert, unimplemented,
     clone::Clone,
-    cmp::{PartialEq, Eq},
-    marker::{Copy, PhantomData},
+    cmp::{Eq, PartialEq},
     fmt::{Debug, Formatter, Result},
+    marker::{Copy, PhantomData},
 };
 
 pub trait FpCfg<const N: usize> {
     const MOD: [u64; N];
-    const RADIX: [u64; N];  // Montgomery Radix is 2^64N % MOD
-    const RADIX_SQ: [u64; N];  // Radix Square % MOD
-    const INV: u64;  // -(MOD^-1) % 2^64
+    const RADIX: [u64; N]; // Montgomery Radix is 2^64N % MOD
+    const RADIX_SQ: [u64; N]; // Radix Square % MOD
+    const INV: u64; // -(MOD^-1) % 2^64
     const ZERO: [u64; N] = [0u64; N];
 }
 
@@ -48,7 +48,10 @@ impl<const N: usize, P: FpCfg<N>> Debug for Fp<N, P> {
 
 impl<const N: usize, P: FpCfg<N>> Clone for Fp<N, P> {
     fn clone(&self) -> Self {
-        Self {repr: self.repr.clone(), phantom: PhantomData}
+        Self {
+            repr: self.repr.clone(),
+            phantom: PhantomData,
+        }
     }
 }
 
@@ -70,7 +73,10 @@ impl<const N: usize, P: FpCfg<N>> From<[u64; N]> for Fp<N, P> {
     fn from(value: [u64; N]) -> Self {
         let mut val = value.clone();
         let _ = div_rem(&mut val, &P::MOD, 0);
-        Self {repr: val, phantom: PhantomData}
+        Self {
+            repr: val,
+            phantom: PhantomData,
+        }
     }
 }
 
@@ -93,8 +99,14 @@ impl<const N: usize, P: FpCfg<N>> Default for Fp<N, P> {
 }
 
 impl<const N: usize, P: FpCfg<N>> Field<N> for Fp<N, P> {
-    const ZERO: Self = Self {repr: P::ZERO, phantom: PhantomData};
-    const ONE: Self = Self {repr: P::RADIX, phantom: PhantomData};
+    const ZERO: Self = Self {
+        repr: P::ZERO,
+        phantom: PhantomData,
+    };
+    const ONE: Self = Self {
+        repr: P::RADIX,
+        phantom: PhantomData,
+    };
 
     fn add_assign(&mut self, other: &Self) {
         let carry = add2(self.as_mut(), other.as_ref());
@@ -118,13 +130,13 @@ impl<const N: usize, P: FpCfg<N>> Field<N> for Fp<N, P> {
             let q = P::INV.wrapping_mul(t);
             carry += mac(&mut t, q, P::MOD[0], 0);
             for j in 1..N {
-                res[j-1] = carry;
+                res[j - 1] = carry;
                 let sj = res[j];
-                carry = adc(&mut res[j-1], sj, 0);
-                carry += mac(&mut res[j-1], x[i], y[j], 0);
-                carry += mac(&mut res[j-1], q, P::MOD[j], 0);
+                carry = adc(&mut res[j - 1], sj, 0);
+                carry += mac(&mut res[j - 1], x[i], y[j], 0);
+                carry += mac(&mut res[j - 1], q, P::MOD[j], 0);
             }
-            res[N-1] = carry;
+            res[N - 1] = carry;
         }
     }
 
@@ -139,7 +151,7 @@ impl<const N: usize, P: FpCfg<N>> Field<N> for Fp<N, P> {
         let mut i = exp;
         let mut acc = self.clone();
         *self = Self::ONE.clone();
-        while i != 0 { 
+        while i != 0 {
             if i % 2 == 1 {
                 self.mul_assign(&acc);
             }
@@ -164,11 +176,15 @@ mod tests {
         const INV: u64 = 3689348814741910323;
     }
 
-    type Fp128 = Fp::<2, P>;
+    type Fp128 = Fp<2, P>;
 
     #[test]
     fn radix() {
-        assert_eq!((u128::MAX - as_dbl_digit(P::RADIX[0]-1, P::RADIX[1])) % as_dbl_digit(P::MOD[0], P::MOD[1]), 0);
+        assert_eq!(
+            (u128::MAX - as_dbl_digit(P::RADIX[0] - 1, P::RADIX[1]))
+                % as_dbl_digit(P::MOD[0], P::MOD[1]),
+            0
+        );
     }
 
     #[test]
@@ -189,7 +205,7 @@ mod tests {
         let input: [u64; 2] = [2, 1];
         assert_eq!(input, Fp128::from_int(input).to_int());
     }
-        
+
     #[test]
     fn from_no_division() {
         let input: [u64; 2] = [2, 1];

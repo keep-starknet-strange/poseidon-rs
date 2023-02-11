@@ -329,7 +329,7 @@ mod tests {
         let mut a: [u64; 2] = [3, 1];
         let b: [u64; 2] = [1, 2];
         let c: u64 = 1;
-        let expected: ([u64; 2], u64) = ([MAX/2 + 4, 0], MAX/2 + 1);
+        let expected: ([u64; 2], u64) = ([MAX / 2 + 4, 0], MAX / 2 + 1);
         let quotient = div_rem(&mut a, &b, c);
         assert_eq!((a, quotient), expected);
     }
