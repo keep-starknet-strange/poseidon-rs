@@ -58,6 +58,15 @@ pub fn add2<const N: usize>(a: &mut [u64; N], b: &[u64; N]) -> u64 {
     carry
 }
 
+/// Computes `a -= b`, returning the last borrow.
+pub fn sub2<const N: usize>(a: &mut [u64; N], b: &[u64; N]) -> u8 {
+    let mut borrow = 0u8;
+    for (a, b) in a.iter_mut().zip(b) {
+        borrow = sbb(a, *b, borrow);
+    }
+    borrow
+}
+
 /// Computes `a -= b * c` for c a digit, returning the borrow (if a < b then borrow > 0).
 pub fn sub_mul<const N: usize>(a: &mut [u64; N], b: &[u64; N], c: u64) -> u64 {
     // -MAX <= carry <= 0, offsetting by MAX to avoid overflow
@@ -118,7 +127,7 @@ pub fn div_rem<const N: usize>(a: &mut [u64; N], b: &[u64; N], c: u64) -> u64 {
 }
 
 /// Computes `a += b * c` for c a digit, returning the carry.
-pub fn mac_digit_with_carry<const N: usize>(a: &mut [u64; N], b: &[u64; N], c: u64) -> u64 {
+pub fn mac_digit<const N: usize>(a: &mut [u64; N], b: &[u64; N], c: u64) -> u64 {
     if c == 0 {
         return 0;
     }
@@ -181,7 +190,6 @@ mod tests {
     fn adc_invariants(a: u64, b: u64, c: u64) -> (u128, u128) {
         let mut new_a: u64 = a;
         let new_c = adc(&mut new_a, b, c);
-        let res: u128 = as_dbl_digit(new_a, new_c) - (b as u128) - (c as u128);
         let before: u128 = (a as u128) + (b as u128) + (c as u128);
         let after: u128 = as_dbl_digit(new_a, new_c);
         (before, after)
@@ -224,7 +232,7 @@ mod tests {
         let mut a: [u64; 2] = [2, 3];
         let b: [u64; 2] = [3, 5];
         let expected: ([u64; 2], u64) = ([5, 8], 0);
-        let carry = add2::<2>(&mut a, &b);
+        let carry = add2(&mut a, &b);
         assert_eq!((a, carry), expected);
     }
 
@@ -233,7 +241,7 @@ mod tests {
         let mut a: [u64; 2] = [u64::MAX, 3];
         let b: [u64; 2] = [3, 5];
         let expected: ([u64; 2], u64) = ([2, 9], 0);
-        let carry = add2::<2>(&mut a, &b);
+        let carry = add2(&mut a, &b);
         assert_eq!((a, carry), expected);
     }
 
@@ -242,7 +250,7 @@ mod tests {
         let mut a: [u64; 2] = [u64::MAX, u64::MAX];
         let b: [u64; 2] = [3, 5];
         let expected: ([u64; 2], u64) = ([2, 5], 1);
-        let carry = add2::<2>(&mut a, &b);
+        let carry = add2(&mut a, &b);
         assert_eq!((a, carry), expected);
     }
 
@@ -314,5 +322,56 @@ mod tests {
         let expected: ([u64; 2], u64) = ([3, 0], MAX);
         let quotient = div_rem(&mut a, &b, c);
         assert_eq!((a, quotient), expected);
+    }
+
+    #[test]
+    fn div_rem_final_carry_le() {
+        let mut a: [u64; 2] = [3, 1];
+        let b: [u64; 2] = [1, 2];
+        let c: u64 = 1;
+        let expected: ([u64; 2], u64) = ([MAX/2 + 4, 0], MAX/2 + 1);
+        let quotient = div_rem(&mut a, &b, c);
+        assert_eq!((a, quotient), expected);
+    }
+
+    #[test]
+    fn div_rem_final_carry_big() {
+        // Quotient overflows
+        let mut a: [u64; 2] = [2, 1];
+        let b: [u64; 2] = [1, 1];
+        let c: u64 = 1;
+        let expected: ([u64; 2], u64) = ([3, 1], MAX);
+        let quotient = div_rem(&mut a, &b, c);
+        assert_eq!((a, quotient), expected);
+    }
+
+    #[test]
+    fn mac_digit_no_carry() {
+        let mut a: [u64; 2] = [2, 1];
+        let b: [u64; 2] = [1, 1];
+        let c: u64 = 5;
+        let expected: ([u64; 2], u64) = ([7, 6], 0);
+        let carry = mac_digit(&mut a, &b, c);
+        assert_eq!((a, carry), expected);
+    }
+
+    #[test]
+    fn mac_digit_inner_carry() {
+        let mut a: [u64; 2] = [1, 2];
+        let b: [u64; 2] = [MAX, 1];
+        let c: u64 = 5;
+        let expected: ([u64; 2], u64) = ([MAX - 3, 11], 0);
+        let carry = mac_digit(&mut a, &b, c);
+        assert_eq!((a, carry), expected);
+    }
+
+    #[test]
+    fn mac_digit_final_carry() {
+        let mut a: [u64; 2] = [MAX, MAX];
+        let b: [u64; 2] = [MAX, MAX];
+        let c: u64 = MAX;
+        let expected: ([u64; 2], u64) = ([0, MAX], MAX);
+        let carry = mac_digit(&mut a, &b, c);
+        assert_eq!((a, carry), expected);
     }
 }
