@@ -49,6 +49,17 @@ pub fn mac(a: &mut u64, b: u64, c: u64, carry: u64) -> u64 {
 
 // --------------------  Numbers Operations  --------------------
 
+pub fn gt<const N: usize>(a: &[u64; N], b: &[u64; N]) -> bool {
+    for i in 1..(N+1) {
+        if a[N-i] > b[N-i] {
+            return(true);
+        }
+    }
+    false
+}
+
+
+
 /// Computes `a += b`, returning the last carry.
 pub fn add2<const N: usize>(a: &mut [u64; N], b: &[u64; N]) -> u64 {
     let mut carry = 0u64;
@@ -124,18 +135,6 @@ pub fn div_rem<const N: usize>(a: &mut [u64; N], b: &[u64; N], c: u64) -> u64 {
     // The top digit of a, stored in a0, has now been zeroed.
     debug_assert!((borrow as u128) == a0);
     q as u64
-}
-
-/// Computes `a += b * c` for c a digit, returning the carry.
-pub fn mac_digit<const N: usize>(a: &mut [u64; N], b: &[u64; N], c: u64) -> u64 {
-    if c == 0 {
-        return 0;
-    }
-    let mut carry = 0;
-    for (a, &b) in a.iter_mut().zip(b) {
-        carry = mac(a, b, c, carry);
-    }
-    carry
 }
 
 #[cfg(test)]
@@ -255,6 +254,15 @@ mod tests {
     }
 
     #[test]
+    fn sub2_with_inner_borrow() {
+        let mut a: [u64; 2] = [2, 3];
+        let b: [u64; 2] = [u64::MAX, 2];
+        let expected: ([u64; 2], u8) = ([3, 0], 0);
+        let borrow = sub2(&mut a, &b);
+        assert_eq!((a, borrow), expected);
+    }
+
+    #[test]
     fn sub_mul_no_borrow() {
         let mut a: [u64; 2] = [456, 23];
         let b: [u64; 2] = [100, 0];
@@ -343,35 +351,5 @@ mod tests {
         let expected: ([u64; 2], u64) = ([3, 1], MAX);
         let quotient = div_rem(&mut a, &b, c);
         assert_eq!((a, quotient), expected);
-    }
-
-    #[test]
-    fn mac_digit_no_carry() {
-        let mut a: [u64; 2] = [2, 1];
-        let b: [u64; 2] = [1, 1];
-        let c: u64 = 5;
-        let expected: ([u64; 2], u64) = ([7, 6], 0);
-        let carry = mac_digit(&mut a, &b, c);
-        assert_eq!((a, carry), expected);
-    }
-
-    #[test]
-    fn mac_digit_inner_carry() {
-        let mut a: [u64; 2] = [1, 2];
-        let b: [u64; 2] = [MAX, 1];
-        let c: u64 = 5;
-        let expected: ([u64; 2], u64) = ([MAX - 3, 11], 0);
-        let carry = mac_digit(&mut a, &b, c);
-        assert_eq!((a, carry), expected);
-    }
-
-    #[test]
-    fn mac_digit_final_carry() {
-        let mut a: [u64; 2] = [MAX, MAX];
-        let b: [u64; 2] = [MAX, MAX];
-        let c: u64 = MAX;
-        let expected: ([u64; 2], u64) = ([0, MAX], MAX);
-        let carry = mac_digit(&mut a, &b, c);
-        assert_eq!((a, carry), expected);
     }
 }

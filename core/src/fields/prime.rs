@@ -1,43 +1,20 @@
 use super::{
-    arithmetic::{adc, add2, div_rem, mac, sub2},
-    Field,
+    arithmetic::{adc, add2, div_rem, mac, sub2, gt},
+    Field, FpCfg, PrimeField
 };
 
 use core::{
     // debug_assert, unimplemented,
-    clone::Clone,
     cmp::{Eq, PartialEq},
+    clone::Clone,
     fmt::{Debug, Formatter, Result},
     marker::{Copy, PhantomData},
 };
 
-pub trait FpCfg<const N: usize> {
-    const MOD: [u64; N];
-    const RADIX: [u64; N]; // Montgomery Radix is 2^64N % MOD
-    const RADIX_SQ: [u64; N]; // Radix Square % MOD
-    const INV: u64; // -(MOD^-1) % 2^64
-    const ZERO: [u64; N] = [0u64; N];
-}
-
-pub trait PrimeField<const N: usize, P: FpCfg<N>>: Field<N> {
-    fn to_int(&self) -> [u64; N] {
-        let mut res: [u64; N] = [0; N];
-        res[0] = 1;
-        let mut res = Self::from(res);
-        res.mul_assign(self);
-        *res.as_ref()
-    }
-
-    fn from_int(value: [u64; N]) -> Self {
-        let mut res = Self::from(value);
-        res.mul_assign(&Self::from(P::RADIX_SQ));
-        res
-    }
-}
 
 pub struct Fp<const N: usize, P: FpCfg<N>> {
     pub repr: [u64; N],
-    phantom: PhantomData<P>,
+    pub phantom: PhantomData<P>,
 }
 
 impl<const N: usize, P: FpCfg<N>> Debug for Fp<N, P> {
@@ -98,7 +75,9 @@ impl<const N: usize, P: FpCfg<N>> Default for Fp<N, P> {
     }
 }
 
-impl<const N: usize, P: FpCfg<N>> Field<N> for Fp<N, P> {
+impl<const N: usize, P: FpCfg<N>> Field for Fp<N, P> {
+    type BaseField = Self;
+
     const ZERO: Self = Self {
         repr: P::ZERO,
         phantom: PhantomData,
@@ -110,8 +89,8 @@ impl<const N: usize, P: FpCfg<N>> Field<N> for Fp<N, P> {
 
     fn add_assign(&mut self, other: &Self) {
         let carry = add2(self.as_mut(), other.as_ref());
-        if carry > 0 || *self.as_ref() > P::MOD {
-            let _borrow = sub2(self.as_mut(), &P::MOD);
+        if carry > 0 || gt(self.as_ref(), &P::MOD) {
+            let borrow = sub2(self.as_mut(), &P::MOD);
             // debug_assert!(u64::from(borrow) == carry);
         }
     }
@@ -123,20 +102,26 @@ impl<const N: usize, P: FpCfg<N>> Field<N> for Fp<N, P> {
         let res = self.as_mut();
         *res = [0; N];
         let mut t: u64;
-        let mut carry: u64;
+        let mut carry: u128; // adding several u64 carries so we double it
         for i in 0..N {
             t = res[0];
-            carry = mac(&mut t, x[i], y[0], 0);
+            carry = mac(&mut t, x[i], y[0], 0) as u128;
             let q = P::INV.wrapping_mul(t);
-            carry += mac(&mut t, q, P::MOD[0], 0);
+            carry += mac(&mut t, q, P::MOD[0], 0) as u128;
             for j in 1..N {
-                res[j - 1] = carry;
+                res[j - 1] = (carry as u64);
+                // carry = (carry >> u64::BITS);
                 let sj = res[j];
-                carry = adc(&mut res[j - 1], sj, 0);
-                carry += mac(&mut res[j - 1], x[i], y[j], 0);
-                carry += mac(&mut res[j - 1], q, P::MOD[j], 0);
+                carry = adc(&mut res[j - 1], sj, 0) as u128;
+                carry += mac(&mut res[j - 1], x[i], y[j], 0) as u128;
+                carry += mac(&mut res[j - 1], q, P::MOD[j], 0) as u128;
             }
-            res[N - 1] = carry;
+            res[N - 1] = carry as u64;
+            // For starkware's prime, final_carry cannot be non-zero.
+            // Since if self and other < MOD, then result < 2*MOD
+        }
+        if *res > P::MOD {
+            sub2(res, &P::MOD);
         }
     }
 
@@ -170,10 +155,10 @@ mod tests {
 
     pub struct P;
     impl FpCfg<2> for P {
-        const MOD: [u64; 2] = [5, 1];
-        const RADIX: [u64; 2] = [25, 0];
-        const RADIX_SQ: [u64; 2] = [625, 0];
-        const INV: u64 = 3689348814741910323;
+        const MOD: [u64; 2] = [u64::MAX, (u64::MAX-1) / 2]; // 2^127 - 1 is prime
+        const RADIX: [u64; 2] = [2, 0];
+        const RADIX_SQ: [u64; 2] = [4, 0];
+        const INV: u64 = 1;
     }
 
     type Fp128 = Fp<2, P>;
@@ -201,6 +186,18 @@ mod tests {
     }
 
     #[test]
+    fn from_int_no_red() {
+        let input: [u64; 2] = [2, 1];
+        assert_eq!([4, 2], *Fp128::from_int(input).as_ref());
+    }
+
+    #[test]
+    fn from_int_with_red() {
+        let input: [u64; 2] = [u64::MAX-3, (u64::MAX-1) / 2];
+        assert_eq!([u64::MAX - 6, (u64::MAX - 3) / 2], *Fp128::from_int(input).as_ref());
+    }
+
+    #[test]
     fn to_from_int() {
         let input: [u64; 2] = [2, 1];
         assert_eq!(input, Fp128::from_int(input).to_int());
@@ -215,9 +212,9 @@ mod tests {
 
     #[test]
     fn from_with_division() {
-        let input: [u64; 2] = [20, 3];
+        let input: [u64; 2] = [1234, u64::MAX];
         let output = Fp128::from(input);
-        assert_eq!([5, 0], output.repr);
+        assert_eq!([1235, u64::MAX / 2], output.repr);
     }
 
     #[test]
@@ -230,10 +227,10 @@ mod tests {
 
     #[test]
     fn add_assign_with_carry() {
-        let mut input = Fp128::from([(2u128.pow(64) - 1) as u64, 1]);
+        let mut input = Fp128::from([u64::MAX - 9, (u64::MAX -1) / 2]);
         let other = Fp128::from([12, 0]);
         input.add_assign(&other);
-        assert_eq!(*input.as_ref(), [1, 0]);
+        assert_eq!(*input.as_ref(), [3, 0]);
     }
 
     #[test]
@@ -244,10 +241,18 @@ mod tests {
     }
 
     #[test]
-    fn mul_assign() {
+    fn mul_assign_1() {
         let mut input = Fp128::from([4, 3]);
         let other = Fp128::from([2, 0]);
         input.mul_assign(&other);
-        assert_eq!(1, 1);
+        assert_eq!(*input.as_ref(), [4, 3]);
+    }
+
+    #[test]
+    fn mul_assign_2() {
+        let mut input = Fp128::from([4, 1]);
+        let other = Fp128::from([234, 0]);
+        input.mul_assign(&other);
+        assert_eq!(input, Fp128::from([468, 117]));
     }
 }
