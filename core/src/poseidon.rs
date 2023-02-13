@@ -3,10 +3,8 @@ use crate::{
     permutation::{Constants, Permutation, Sponge},
 };
 use core::{
-    cmp::{Eq, PartialEq},
     clone::Clone,
-    fmt::{Debug, Formatter, Result},
-    marker::{Copy, PhantomData},
+    marker::Copy,
 };
 
 pub struct Poseidon<'a, const RATE: usize, const SIZE: usize, const N_ROUNDS: usize, GF>
@@ -44,29 +42,29 @@ where GF: Field {
 
 impl<'a, const RATE: usize, const SIZE: usize, const N_ROUNDS: usize, GF> Poseidon<'a, RATE, SIZE, N_ROUNDS, GF>
 where GF: Field {
-    fn ark(&mut self, round: usize) {
+    pub fn ark(&mut self, round: usize) {
         let rks = self.constants.rks[round];
-        let mut state = self.as_mut();
+        let state = self.as_mut();
         for i in 0..SIZE {
             state[i].add_assign(&rks[i]);
         }
     }
 
-    fn sbox_full(&mut self) {
+    pub fn sbox_full(&mut self) {
         let sbox = self.constants.sbox;
-        let mut state = self.as_mut();
+        let state = self.as_mut();
         for i in 0..SIZE {
             state[i].pow_assign(sbox);
         }
     }
 
-    fn sbox_partial(&mut self) {
+    pub fn sbox_partial(&mut self) {
         let sbox = self.constants.sbox;
-        let mut state = self.as_mut();
+        let state = self.as_mut();
         state[SIZE-1].pow_assign(sbox);
     }
 
-    fn mix(&mut self) {
+    pub fn mix(&mut self) {
         let state = self.as_ref();
         let mut new_state: [GF; SIZE] = [GF::default(); SIZE];
         for i in 0..SIZE {
@@ -76,7 +74,7 @@ where GF: Field {
                 new_state[i].add_assign(&mij);
             }
         }
-        let mut state = self.as_mut();
+        let state = self.as_mut();
         for i in 0..SIZE {
             state[i] = new_state[i];
         }
@@ -110,11 +108,11 @@ where GF: Field {
 }
 
 impl<'a, const RATE: usize, const SIZE: usize, const N_ROUNDS: usize, GF> Sponge<RATE, SIZE, GF> for Poseidon<'a, RATE, SIZE, N_ROUNDS, GF>
-where GF: PrimeField {
+where GF: Field {
     fn absorb(&mut self, input: &[GF; RATE]) {
-        let mut state = self.as_mut();
+        let state = self.as_mut();
         for i in 0..RATE {
-            state[i].add_assign(&input[i].to_repr());
+            state[i].add_assign(&input[i]);
         }
         self.permute();
     }
@@ -123,7 +121,7 @@ where GF: PrimeField {
         let state = self.as_ref();
         let mut result: [GF; RATE] = [GF::default(); RATE];
         for i in 0..RATE {
-            result[i] = state[i].from_repr();
+            result[i] = state[i];
         }
         self.permute();
         result

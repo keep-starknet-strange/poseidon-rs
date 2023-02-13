@@ -13,13 +13,14 @@
 //! set of parameters to be used. They take slices of field elements as input
 //! and returns a vector of field elements representing the hash value. For
 //! example:
-//!
-//! ```
-//! use poseidon::hash_s128b;
-//! use poseidon::parameters::s128b::GF;
-//! let inputs = vec![GF::from(7), GF::from(54)];
-//! let h = hash_s128b(&inputs);
-//! ```
+
+//
+// ```
+// use poseidon::hash_s128b;
+// use poseidon::parameters::s128b::GF;
+// let inputs = vec![GF::from(7), GF::from(54)];
+// let h = hash_s128b(&inputs);
+// ```
 
 // Implementation is done for PrimeFields.
 // Question remains of how to handle BinaryFields.
@@ -27,6 +28,15 @@
 
 // pub mod convert;
 // use convert::{felts_from_u8s, u8s_from_felts};
+
+#![no_std]
+use core::panic::PanicInfo;
+
+/// This function is called on panic.
+#[panic_handler]
+fn panic(_info: &PanicInfo) -> ! {
+    loop {}
+}
 
 pub mod fields;
 pub mod permutation;

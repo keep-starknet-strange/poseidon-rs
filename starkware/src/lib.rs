@@ -1,6 +1,8 @@
+#![no_std]
+
 use poseidon::{
     fields::{
-        FpCfg, PrimeField,
+        FpCfg,
         prime::Fp,
     },
     poseidon::Poseidon,
@@ -8,20 +10,23 @@ use poseidon::{
 };
 use core::marker::PhantomData;
 
+
 pub struct P;
 impl FpCfg<4> for P {
     const MOD: [u64; 4] = [1, 0, 0, 576460752303423505]; 
-    const RADIX: [u64; 4] = [18446744073709551585, 18446744073709551615, 18446744073709551615, 576460752303422960]; // 2^256
+    const RADIX: [u64; 4] = [18446744073709551585, 18446744073709551615, 18446744073709551615, 576460752303422960]; // 2^256 % MOD
     const RADIX_SQ: [u64; 4] = [18446741271209837569, 5151653887, 18446744073700081664, 576413109808302096]; // RADIX^2 % MOD
-    const INV: u64 = u64::MAX; // -(MOD^-1) % 2^64
-}
+    const NEG_INV: u64 = u64::MAX; // -(MOD^-1) % 2^64
+} 
 
 pub type F = Fp<4, P>;
 pub type H = Poseidon<'static, 2, 3, 91, F>;
 
-pub static sw2: Constants<3, 91, F> = Constants {
+pub static SW2: Constants<3, 91, F> = Constants {
     n_full_rounds: 8,
     sbox: 3,
+    // Field elements are stored in Montgomery form already to avoid extra conversions
+    // MDS to_int is [[3, 1, 1], [1, -1, 1], [1, 1, -2]]
     mds: [
         [
             F{repr: [18446744073709551521, 18446744073709551615, 18446744073709551615, 576460752303421872], phantom: PhantomData},
@@ -499,11 +504,10 @@ pub static sw2: Constants<3, 91, F> = Constants {
 };
 
 #[cfg(test)]
-mod test{
+mod tests{
     use super::*;
     use poseidon::{
         fields::{Field, PrimeField},
-        hash::Poseidon,
         permutation::Sponge,
     };
     use core::marker::PhantomData;
@@ -511,13 +515,21 @@ mod test{
     #[test]
     fn test_hash_simple() {
         let input = [F::ZERO, F::ZERO];
+        // Expected in Integer
+        // 3446325744004048536138401612021367625846492093718951375866996507163446763827
+        // 1590252087433376791875644726012779423683501236913937337746052470473806035332
         let expected = [
-            F{repr: [9807529923596045758, 16536855018464238055, 14664526698940491102, 432130875968301967], phantom: PhantomData},
-            F{repr: [4063038782967151671, 13173406895804981287, 11277348039386025686, 436343559696960954], phantom: PhantomData},
+            F{repr: [9679659289224438067, 9593607935225213411, 11713803070837308358, 549031366590038016], phantom: PhantomData},
+            F{repr: [11697560501447801220, 16552206698782960316, 15832289038794401339, 253341773715160982], phantom: PhantomData},
         ];
-        let mut spg = H{state: [F::ZERO; 3], constants: &sw2};
+            // F{repr: [9807529923596045758, 16536855018464238055, 14664526698940491102, 432130875968301967], phantom: PhantomData},
+            // F{repr: [4063038782967151671, 13173406895804981287, 11277348039386025686, 436343559696960954], phantom: PhantomData},
+        let mut spg = H{state: [F::ZERO; 3], constants: &SW2};
         spg.absorb(&input);
-        let output = spg.squeeze();
+        let mut output = spg.squeeze();
+        for el in output.iter_mut() {
+            el.to_int();
+        }
         assert_eq!(output, expected);
     }
 }

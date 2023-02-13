@@ -49,13 +49,16 @@ pub fn mac(a: &mut u64, b: u64, c: u64, carry: u64) -> u64 {
 
 // --------------------  Numbers Operations  --------------------
 
-pub fn gt<const N: usize>(a: &[u64; N], b: &[u64; N]) -> bool {
+pub fn ge<const N: usize>(a: &[u64; N], b: &[u64; N]) -> bool {
     for i in 1..(N+1) {
         if a[N-i] > b[N-i] {
-            return(true);
+            return true;
+        }
+        if a[N-i] < b[N-i] {
+            return false;
         }
     }
-    false
+    true
 }
 
 

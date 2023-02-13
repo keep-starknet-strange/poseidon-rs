@@ -10,4 +10,6 @@ panic = "abort"
 panic = "abort"
 
 [dependencies]
-poseidon = { path=".." }
+poseidon = { path="../core" }
+
+[workspace]

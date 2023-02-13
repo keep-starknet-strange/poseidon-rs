@@ -1,5 +1,5 @@
 use super::{
-    arithmetic::{adc, add2, div_rem, mac, sub2, gt},
+    arithmetic::{adc, add2, div_rem, mac, sub2, ge},
     Field, FpCfg, PrimeField
 };
 
@@ -57,6 +57,15 @@ impl<const N: usize, P: FpCfg<N>> From<[u64; N]> for Fp<N, P> {
     }
 }
 
+impl<const N: usize, P: FpCfg<N>> From<u64> for Fp<N, P> {
+    fn from(value: u64) -> Self {
+        let mut val: [u64; N] = [0; N];
+        val[0] = value;
+        let mut res = Self::from(val);
+        *res.from_int()
+    }
+}
+
 impl<const N: usize, P: FpCfg<N>> PartialEq for Fp<N, P> {
     fn eq(&self, other: &Self) -> bool {
         self.as_ref() == other.as_ref()
@@ -89,9 +98,9 @@ impl<const N: usize, P: FpCfg<N>> Field for Fp<N, P> {
 
     fn add_assign(&mut self, other: &Self) {
         let carry = add2(self.as_mut(), other.as_ref());
-        if carry > 0 || gt(self.as_ref(), &P::MOD) {
-            let borrow = sub2(self.as_mut(), &P::MOD);
-            // debug_assert!(u64::from(borrow) == carry);
+        if carry > 0 || ge(self.as_ref(), &P::MOD) {
+            sub2(self.as_mut(), &P::MOD);
+            // borrow == carry
         }
     }
 
@@ -106,13 +115,13 @@ impl<const N: usize, P: FpCfg<N>> Field for Fp<N, P> {
         for i in 0..N {
             t = res[0];
             carry = mac(&mut t, x[i], y[0], 0) as u128;
-            let q = P::INV.wrapping_mul(t);
+            let q = P::NEG_INV.wrapping_mul(t);
             carry += mac(&mut t, q, P::MOD[0], 0) as u128;
             for j in 1..N {
-                res[j - 1] = (carry as u64);
-                // carry = (carry >> u64::BITS);
+                res[j - 1] = carry as u64;
+                carry = carry >> u64::BITS;
                 let sj = res[j];
-                carry = adc(&mut res[j - 1], sj, 0) as u128;
+                carry += adc(&mut res[j - 1], sj, 0) as u128;
                 carry += mac(&mut res[j - 1], x[i], y[j], 0) as u128;
                 carry += mac(&mut res[j - 1], q, P::MOD[j], 0) as u128;
             }
@@ -120,7 +129,7 @@ impl<const N: usize, P: FpCfg<N>> Field for Fp<N, P> {
             // For starkware's prime, final_carry cannot be non-zero.
             // Since if self and other < MOD, then result < 2*MOD
         }
-        if *res > P::MOD {
+        if ge(res, &P::MOD) {
             sub2(res, &P::MOD);
         }
     }
@@ -158,7 +167,7 @@ mod tests {
         const MOD: [u64; 2] = [u64::MAX, (u64::MAX-1) / 2]; // 2^127 - 1 is prime
         const RADIX: [u64; 2] = [2, 0];
         const RADIX_SQ: [u64; 2] = [4, 0];
-        const INV: u64 = 1;
+        const NEG_INV: u64 = 1;  // 2^64 | (1 * MOD + 1)
     }
 
     type Fp128 = Fp<2, P>;
@@ -174,7 +183,21 @@ mod tests {
 
     #[test]
     fn inv() {
-        assert_eq!(P::INV.wrapping_mul(P::MOD[0]).wrapping_add(1), 0);
+        assert_eq!(P::NEG_INV.wrapping_mul(P::MOD[0]).wrapping_add(1), 0);
+    }
+
+    #[test]
+    fn from_u64_no_carry() {
+        let input: u64 = 7;
+        let expected = Fp128::from([14, 0]);
+        assert_eq!(Fp128::from(input), expected);
+    }
+
+    #[test]
+    fn from_u64_with_carry() {
+        let input: u64 = u64::MAX;
+        let expected = Fp128::from([u64::MAX - 1, 1]);
+        assert_eq!(Fp128::from(input), expected);
     }
 
     #[test]
@@ -187,20 +210,26 @@ mod tests {
 
     #[test]
     fn from_int_no_red() {
-        let input: [u64; 2] = [2, 1];
-        assert_eq!([4, 2], *Fp128::from_int(input).as_ref());
+        let input = Fp128::from([2, 1]);
+        let mut output = input.clone();
+        output.from_int();
+        assert_eq!(Fp128::from([4, 2]), output);
     }
 
     #[test]
     fn from_int_with_red() {
-        let input: [u64; 2] = [u64::MAX-3, (u64::MAX-1) / 2];
-        assert_eq!([u64::MAX - 6, (u64::MAX - 3) / 2], *Fp128::from_int(input).as_ref());
+        let input = Fp128::from([u64::MAX-3, (u64::MAX-1) / 2]);
+        let mut output = input.clone();
+        output.from_int();
+        assert_eq!(Fp128::from([u64::MAX - 6, (u64::MAX - 1) / 2]), output);
     }
 
     #[test]
     fn to_from_int() {
-        let input: [u64; 2] = [2, 1];
-        assert_eq!(input, Fp128::from_int(input).to_int());
+        let input = Fp128::from([2, 1]);
+        let mut output = input.clone();
+        output.from_int().to_int();
+        assert_eq!(input, output);
     }
 
     #[test]
