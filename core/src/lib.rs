@@ -34,7 +34,6 @@
 #[cfg(feature = "no_std")]
 pub mod panic;
 
-
 pub mod fields;
 pub mod permutation;
 pub mod poseidon;
