@@ -10,8 +10,7 @@ use core::{
 pub mod arithmetic;
 pub mod prime;
 
-pub trait Field: Copy + Default + PartialEq + Eq + Debug
-{
+pub trait Field: Copy + Default + PartialEq + Eq + Debug {
     type BaseField;
 
     const ZERO: Self;

@@ -50,18 +50,16 @@ pub fn mac(a: &mut u64, b: u64, c: u64, carry: u64) -> u64 {
 // --------------------  Numbers Operations  --------------------
 
 pub fn ge<const N: usize>(a: &[u64; N], b: &[u64; N]) -> bool {
-    for i in 1..(N+1) {
-        if a[N-i] > b[N-i] {
+    for i in 1..(N + 1) {
+        if a[N - i] > b[N - i] {
             return true;
         }
-        if a[N-i] < b[N-i] {
+        if a[N - i] < b[N - i] {
             return false;
         }
     }
     true
 }
-
-
 
 /// Computes `a += b`, returning the last carry.
 pub fn add2<const N: usize>(a: &mut [u64; N], b: &[u64; N]) -> u64 {

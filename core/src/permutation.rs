@@ -16,7 +16,9 @@ pub trait Permutation {
     fn permute(&mut self);
 }
 
-pub trait Sponge<const RATE: usize, const SIZE: usize, GF: Field>: Copy + AsRef<[GF; SIZE]> + AsMut<[GF; SIZE]> + Permutation {
+pub trait Sponge<const RATE: usize, const SIZE: usize, GF: Field>:
+    Copy + AsRef<[GF; SIZE]> + AsMut<[GF; SIZE]> + Permutation
+{
     fn absorb(&mut self, input: &[GF; RATE]) {
         let state = self.as_mut();
         for i in 0..RATE {

@@ -2,19 +2,21 @@ use crate::{
     fields::Field,
     permutation::{Constants, Permutation, Sponge},
 };
-use core::{
-    clone::Clone,
-    marker::Copy,
-};
+use core::{clone::Clone, marker::Copy};
 
 pub struct Poseidon<'a, const RATE: usize, const SIZE: usize, const N_ROUNDS: usize, GF>
-where GF: Field {
+where
+    GF: Field,
+{
     pub state: [GF; SIZE],
     pub constants: &'a Constants<SIZE, N_ROUNDS, GF>,
 }
 
-impl<'a, const RATE: usize, const SIZE: usize, const N_ROUNDS: usize, GF> Clone for Poseidon<'a, RATE, SIZE, N_ROUNDS, GF> 
-where GF: Field {
+impl<'a, const RATE: usize, const SIZE: usize, const N_ROUNDS: usize, GF> Clone
+    for Poseidon<'a, RATE, SIZE, N_ROUNDS, GF>
+where
+    GF: Field,
+{
     fn clone(&self) -> Self {
         Self {
             state: self.state.clone(),
@@ -23,25 +25,38 @@ where GF: Field {
     }
 }
 
-impl<'a, const RATE: usize, const SIZE: usize, const N_ROUNDS: usize, GF> Copy for Poseidon<'a, RATE, SIZE, N_ROUNDS, GF> 
-where GF: Field {}
+impl<'a, const RATE: usize, const SIZE: usize, const N_ROUNDS: usize, GF> Copy
+    for Poseidon<'a, RATE, SIZE, N_ROUNDS, GF>
+where
+    GF: Field,
+{
+}
 
-impl<'a, const RATE: usize, const SIZE: usize, const N_ROUNDS: usize, GF> AsRef<[GF; SIZE]> for Poseidon<'a, RATE, SIZE, N_ROUNDS, GF> 
-where GF: Field {
+impl<'a, const RATE: usize, const SIZE: usize, const N_ROUNDS: usize, GF> AsRef<[GF; SIZE]>
+    for Poseidon<'a, RATE, SIZE, N_ROUNDS, GF>
+where
+    GF: Field,
+{
     fn as_ref(&self) -> &[GF; SIZE] {
         &self.state
     }
 }
 
-impl<'a, const RATE: usize, const SIZE: usize, const N_ROUNDS: usize, GF> AsMut<[GF; SIZE]> for Poseidon<'a, RATE, SIZE, N_ROUNDS, GF> 
-where GF: Field {
+impl<'a, const RATE: usize, const SIZE: usize, const N_ROUNDS: usize, GF> AsMut<[GF; SIZE]>
+    for Poseidon<'a, RATE, SIZE, N_ROUNDS, GF>
+where
+    GF: Field,
+{
     fn as_mut(&mut self) -> &mut [GF; SIZE] {
         &mut self.state
     }
 }
 
-impl<'a, const RATE: usize, const SIZE: usize, const N_ROUNDS: usize, GF> Poseidon<'a, RATE, SIZE, N_ROUNDS, GF>
-where GF: Field {
+impl<'a, const RATE: usize, const SIZE: usize, const N_ROUNDS: usize, GF>
+    Poseidon<'a, RATE, SIZE, N_ROUNDS, GF>
+where
+    GF: Field,
+{
     pub fn ark(&mut self, round: usize) {
         let rks = self.constants.rks[round];
         let state = self.as_mut();
@@ -61,7 +76,7 @@ where GF: Field {
     pub fn sbox_partial(&mut self) {
         let sbox = self.constants.sbox;
         let state = self.as_mut();
-        state[SIZE-1].pow_assign(sbox);
+        state[SIZE - 1].pow_assign(sbox);
     }
 
     pub fn mix(&mut self) {
@@ -81,8 +96,11 @@ where GF: Field {
     }
 }
 
-impl<'a, const RATE: usize, const SIZE: usize, const N_ROUNDS: usize, GF> Permutation for Poseidon<'a, RATE, SIZE, N_ROUNDS, GF>
-where GF: Field {
+impl<'a, const RATE: usize, const SIZE: usize, const N_ROUNDS: usize, GF> Permutation
+    for Poseidon<'a, RATE, SIZE, N_ROUNDS, GF>
+where
+    GF: Field,
+{
     fn permute(&mut self) {
         let rf = self.constants.n_full_rounds;
         let rp = N_ROUNDS - rf;
@@ -107,8 +125,11 @@ where GF: Field {
     }
 }
 
-impl<'a, const RATE: usize, const SIZE: usize, const N_ROUNDS: usize, GF> Sponge<RATE, SIZE, GF> for Poseidon<'a, RATE, SIZE, N_ROUNDS, GF>
-where GF: Field {
+impl<'a, const RATE: usize, const SIZE: usize, const N_ROUNDS: usize, GF> Sponge<RATE, SIZE, GF>
+    for Poseidon<'a, RATE, SIZE, N_ROUNDS, GF>
+where
+    GF: Field,
+{
     fn absorb(&mut self, input: &[GF; RATE]) {
         let state = self.as_mut();
         for i in 0..RATE {
@@ -126,5 +147,4 @@ where GF: Field {
         self.permute();
         result
     }
-
 }

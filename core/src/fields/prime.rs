@@ -1,16 +1,15 @@
 use super::{
-    arithmetic::{adc, add2, div_rem, mac, sub2, ge},
-    Field, FpCfg, PrimeField
+    arithmetic::{adc, add2, div_rem, ge, mac, sub2},
+    Field, FpCfg, PrimeField,
 };
 
 use core::{
+    clone::Clone,
     // debug_assert, unimplemented,
     cmp::{Eq, PartialEq},
-    clone::Clone,
     fmt::{Debug, Formatter, Result},
     marker::{Copy, PhantomData},
 };
-
 
 pub struct Fp<const N: usize, P: FpCfg<N>> {
     pub repr: [u64; N],
@@ -164,10 +163,10 @@ mod tests {
 
     pub struct P;
     impl FpCfg<2> for P {
-        const MOD: [u64; 2] = [u64::MAX, (u64::MAX-1) / 2]; // 2^127 - 1 is prime
+        const MOD: [u64; 2] = [u64::MAX, (u64::MAX - 1) / 2]; // 2^127 - 1 is prime
         const RADIX: [u64; 2] = [2, 0];
         const RADIX_SQ: [u64; 2] = [4, 0];
-        const NEG_INV: u64 = 1;  // 2^64 | (1 * MOD + 1)
+        const NEG_INV: u64 = 1; // 2^64 | (1 * MOD + 1)
     }
 
     type Fp128 = Fp<2, P>;
@@ -218,7 +217,7 @@ mod tests {
 
     #[test]
     fn from_int_with_red() {
-        let input = Fp128::from([u64::MAX-3, (u64::MAX-1) / 2]);
+        let input = Fp128::from([u64::MAX - 3, (u64::MAX - 1) / 2]);
         let mut output = input.clone();
         output.from_int();
         assert_eq!(Fp128::from([u64::MAX - 6, (u64::MAX - 1) / 2]), output);
@@ -256,7 +255,7 @@ mod tests {
 
     #[test]
     fn add_assign_with_carry() {
-        let mut input = Fp128::from([u64::MAX - 9, (u64::MAX -1) / 2]);
+        let mut input = Fp128::from([u64::MAX - 9, (u64::MAX - 1) / 2]);
         let other = Fp128::from([12, 0]);
         input.add_assign(&other);
         assert_eq!(*input.as_ref(), [3, 0]);
