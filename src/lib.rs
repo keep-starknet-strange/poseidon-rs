@@ -130,3 +130,8 @@ pub fn hash_pallas(inputs: &[pallas::GF]) -> Vec<pallas::GF> {
 pub fn hash_vesta(inputs: &[vesta::GF]) -> Vec<vesta::GF> {
     hash::<vesta::GF>(inputs, &vesta::PARAMS).unwrap()
 }
+
+#[panic_handler]
+pub fn panic(_info: &core::panic::PanicInfo) -> ! {
+    loop {}
+}

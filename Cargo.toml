@@ -14,3 +14,9 @@ libc = {version = "0.2.139", default-features = false}
 
 [lib]
 crate-type = ["staticlib", "lib"]
+
+[profile.dev]
+panic = "abort"
+
+[profile.release]
+panic = "abort"
