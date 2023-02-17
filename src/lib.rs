@@ -27,7 +27,7 @@
 #![cfg_attr(
     any(target_arch = "wasm32", not(feature = "std")),
     no_std,
-    feature(default_alloc_error_handler)
+    feature(alloc_error_handler)
 )]
 
 #[macro_use]
@@ -46,6 +46,11 @@ unsafe impl GlobalAlloc for Allocator {
     unsafe fn dealloc(&self, ptr: *mut u8, _layout: Layout) {
         libc::free(ptr as *mut libc::c_void);
     }
+}
+
+#[alloc_error_handler]
+fn alloc_error_handler(layout: alloc::alloc::Layout) -> ! {
+    panic!("Allocation error: {:?}", layout)
 }
 
 /// The static global allocator.
