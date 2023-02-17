@@ -1,3 +1,4 @@
+use alloc::vec::Vec;
 use ff::PrimeField;
 
 pub fn felts_from_str<GF>(constants: &[&'static str]) -> Vec<GF>

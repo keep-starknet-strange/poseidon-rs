@@ -24,6 +24,12 @@
 // Implementation is done for PrimeFields.
 // Question remains of how to handle BinaryFields.
 // Other fields are probably not useful at this point.
+#![cfg_attr(any(target_arch = "wasm32", not(feature = "std")), no_std)]
+
+#[macro_use]
+extern crate alloc;
+
+use alloc::vec::Vec;
 
 pub mod convert;
 use convert::{felts_from_u8s, u8s_from_felts};
@@ -57,7 +63,7 @@ pub extern "C" fn c_hash_s128b(
 ) -> usize {
     let input = unsafe {
         assert!(!input.is_null());
-        std::slice::from_raw_parts(input, input_len)
+        core::slice::from_raw_parts(input, input_len)
     };
     let input = felts_from_u8s(&input);
 
@@ -68,7 +74,7 @@ pub extern "C" fn c_hash_s128b(
     // let src = result.as_ptr();
     let output = unsafe {
         assert!(!output.is_null());
-        std::slice::from_raw_parts_mut(output, output_len)
+        core::slice::from_raw_parts_mut(output, output_len)
     };
     output.copy_from_slice(&result);
     count
@@ -88,7 +94,7 @@ pub extern "C" fn c_hash_sw2(
 ) -> usize {
     let input = unsafe {
         assert!(!input.is_null());
-        std::slice::from_raw_parts(input, input_len)
+        core::slice::from_raw_parts(input, input_len)
     };
     let input = felts_from_u8s(&input);
 
@@ -99,7 +105,7 @@ pub extern "C" fn c_hash_sw2(
     // let src = result.as_ptr();
     let output = unsafe {
         assert!(!output.is_null());
-        std::slice::from_raw_parts_mut(output, output_len)
+        core::slice::from_raw_parts_mut(output, output_len)
     };
     output.copy_from_slice(&result);
     count
