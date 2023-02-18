@@ -48,6 +48,7 @@ unsafe impl GlobalAlloc for Allocator {
     }
 }
 
+#[cfg(not(test))]
 #[alloc_error_handler]
 fn alloc_error_handler(layout: alloc::alloc::Layout) -> ! {
     panic!("Allocation error: {:?}", layout)
@@ -157,6 +158,7 @@ pub fn hash_vesta(inputs: &[vesta::GF]) -> Vec<vesta::GF> {
     hash::<vesta::GF>(inputs, &vesta::PARAMS).unwrap()
 }
 
+#[cfg(not(test))]
 #[panic_handler]
 pub fn panic(_info: &core::panic::PanicInfo) -> ! {
     loop {}
