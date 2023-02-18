@@ -9,8 +9,14 @@ repository = "https://github.com/keep-starknet-strange/poseidon-rs"
 readme = "README.md"
 
 [dependencies]
-ff = {version="0.13.0", features=["derive"]}
-libc = "0.2.139"
+ff = { version = "0.13.0", features = ["derive"], default-features = false }
+libc = { version = "0.2.139", default-features = false }
 
 [lib]
 crate-type = ["staticlib", "lib"]
+
+[profile.dev]
+panic = "abort"
+
+[profile.release]
+panic = "abort"

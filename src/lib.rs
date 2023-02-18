@@ -24,6 +24,39 @@
 // Implementation is done for PrimeFields.
 // Question remains of how to handle BinaryFields.
 // Other fields are probably not useful at this point.
+#![cfg_attr(
+    any(target_arch = "wasm32", not(feature = "std")),
+    no_std,
+    feature(alloc_error_handler)
+)]
+
+#[macro_use]
+extern crate alloc;
+
+use alloc::alloc::*;
+use alloc::vec::Vec;
+
+#[derive(Default)]
+pub struct Allocator;
+
+unsafe impl GlobalAlloc for Allocator {
+    unsafe fn alloc(&self, layout: Layout) -> *mut u8 {
+        libc::malloc(layout.size()) as *mut u8
+    }
+    unsafe fn dealloc(&self, ptr: *mut u8, _layout: Layout) {
+        libc::free(ptr as *mut libc::c_void);
+    }
+}
+
+#[cfg(not(test))]
+#[alloc_error_handler]
+fn alloc_error_handler(layout: alloc::alloc::Layout) -> ! {
+    panic!("Allocation error: {:?}", layout)
+}
+
+/// The static global allocator.
+#[global_allocator]
+static GLOBAL_ALLOCATOR: Allocator = Allocator;
 
 pub mod convert;
 use convert::{felts_from_u8s, u8s_from_felts};
@@ -57,7 +90,7 @@ pub extern "C" fn c_hash_s128b(
 ) -> usize {
     let input = unsafe {
         assert!(!input.is_null());
-        std::slice::from_raw_parts(input, input_len)
+        core::slice::from_raw_parts(input, input_len)
     };
     let input = felts_from_u8s(&input);
 
@@ -68,7 +101,7 @@ pub extern "C" fn c_hash_s128b(
     // let src = result.as_ptr();
     let output = unsafe {
         assert!(!output.is_null());
-        std::slice::from_raw_parts_mut(output, output_len)
+        core::slice::from_raw_parts_mut(output, output_len)
     };
     output.copy_from_slice(&result);
     count
@@ -88,7 +121,7 @@ pub extern "C" fn c_hash_sw2(
 ) -> usize {
     let input = unsafe {
         assert!(!input.is_null());
-        std::slice::from_raw_parts(input, input_len)
+        core::slice::from_raw_parts(input, input_len)
     };
     let input = felts_from_u8s(&input);
 
@@ -99,7 +132,7 @@ pub extern "C" fn c_hash_sw2(
     // let src = result.as_ptr();
     let output = unsafe {
         assert!(!output.is_null());
-        std::slice::from_raw_parts_mut(output, output_len)
+        core::slice::from_raw_parts_mut(output, output_len)
     };
     output.copy_from_slice(&result);
     count
@@ -123,4 +156,10 @@ pub fn hash_pallas(inputs: &[pallas::GF]) -> Vec<pallas::GF> {
 
 pub fn hash_vesta(inputs: &[vesta::GF]) -> Vec<vesta::GF> {
     hash::<vesta::GF>(inputs, &vesta::PARAMS).unwrap()
+}
+
+#[cfg(not(test))]
+#[panic_handler]
+pub fn panic(_info: &core::panic::PanicInfo) -> ! {
+    loop {}
 }
