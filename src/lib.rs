@@ -31,10 +31,10 @@
 )]
 
 #[cfg(feature = "std")]
-include!("with_std.rs");
+include!("./with_std.rs");
 
 #[cfg(all(not(feature = "std"), feature = "alloc"))]
-include!("without_std.rs");
+include!("./without_std.rs");
 
 use core::alloc::{GlobalAlloc, Layout};
 
