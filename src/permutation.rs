@@ -115,12 +115,8 @@ where
     }
     let n_remaining = inputs.len() % params.rate;
     if n_remaining != 0 {
-        return Err(format!(
-            "Input length {} must be a multiple of the hash rate {}",
-            inputs.len(),
-            params.rate
-        )
-        .to_string());
+        let message = "Input length ".to_string() + &inputs.len().to_string() + " must be a multiple of the hash rate " + &params.rate.to_string();
+        return Err(message);
     }
 
     let mut poseidon = Poseidon::<'a, GF>::new(&params);
