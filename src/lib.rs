@@ -24,19 +24,18 @@
 // Implementation is done for PrimeFields.
 // Question remains of how to handle BinaryFields.
 // Other fields are probably not useful at this point.
-#![cfg_attr(
-    any(target_arch = "wasm32", not(feature = "std")),
-    no_std,
-    // feature(default_alloc_error_handler)
-)]
+#![cfg_attr(not(feature = "std"), no_std)]
 
 #[cfg(feature = "std")]
 include!("./with_std.rs");
 
-#[cfg(all(not(feature = "std"), feature = "alloc"))]
+#[cfg(not(feature = "std"))]
 include!("./without_std.rs");
 
-use crate::prelude::*;
+#[cfg(all(not(feature = "std"), feature = "alloc"))]
+include!("./with_alloc.rs");
+
+use self::vec::Vec;
 
 pub mod convert;
 use convert::{felts_from_u8s, u8s_from_felts};
@@ -70,7 +69,7 @@ pub extern "C" fn c_hash_s128b(
 ) -> usize {
     let input = unsafe {
         assert!(!input.is_null());
-        slice::from_raw_parts(input, input_len)
+        crate::slice::from_raw_parts(input, input_len)
     };
     let input = felts_from_u8s(&input);
 
@@ -136,16 +135,4 @@ pub fn hash_pallas(inputs: &[pallas::GF]) -> Vec<pallas::GF> {
 
 pub fn hash_vesta(inputs: &[vesta::GF]) -> Vec<vesta::GF> {
     hash::<vesta::GF>(inputs, &vesta::PARAMS).unwrap()
-}
-
-pub mod prelude {
-    pub use crate::{
-        borrow::ToOwned,
-        boxed::Box,
-        clone::Clone,
-        cmp::{Eq, PartialEq, Reverse},
-        iter::IntoIterator,
-        string::{String, ToString},
-        vec::Vec,
-    };
 }

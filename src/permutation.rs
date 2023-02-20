@@ -1,7 +1,8 @@
 use crate::convert::felts_from_str;
 use crate::parameters::Parameters;
 use ff::PrimeField;
-use crate::prelude::*;
+use crate::vec::Vec;
+use crate::string::{String, ToString};
 
 pub struct Poseidon<'a, GF> {
     params: &'a Parameters,

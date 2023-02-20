@@ -1,5 +1,5 @@
 use ff::PrimeField;
-use crate::prelude::*;
+use crate::vec::Vec;
 
 pub fn felts_from_str<GF>(constants: &[&'static str]) -> Vec<GF>
 where
