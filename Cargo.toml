@@ -14,11 +14,11 @@ libc = { version = "0.2.139", default-features = false}
 
 [features]
 default = ["std"]
-std = ["alloc"]
-alloc = []
+std = ["alloc", "libc/std", "ff/std"]
+alloc = ["ff/alloc"]
 
 [lib]
-crate-type = ["staticlib", "lib"]
+crate-type = ["rlib", "lib"]
 
 [profile.dev]
 panic = "abort"
