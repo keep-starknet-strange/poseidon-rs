@@ -36,8 +36,25 @@ include!("with_std.rs");
 #[cfg(all(not(feature = "std"), feature = "alloc"))]
 include!("without_std.rs");
 
-#[cfg(all(not(feature = "std"), feature = "alloc"))]
-use alloc::vec::Vec;
+use core::alloc::{GlobalAlloc, Layout};
+
+#[derive(Default)]
+pub struct Allocator;
+
+unsafe impl GlobalAlloc for Allocator {
+    unsafe fn alloc(&self, layout: Layout) -> *mut u8 {
+        libc::malloc(layout.size()) as *mut u8
+    }
+    unsafe fn dealloc(&self, ptr: *mut u8, _layout: Layout) {
+        libc::free(ptr as *mut libc::c_void);
+    }
+}
+
+/// The static global allocator.
+#[global_allocator]
+static GLOBAL_ALLOCATOR: Allocator = Allocator;
+
+use crate::prelude::*;
 
 pub mod convert;
 use convert::{felts_from_u8s, u8s_from_felts};
@@ -71,7 +88,7 @@ pub extern "C" fn c_hash_s128b(
 ) -> usize {
     let input = unsafe {
         assert!(!input.is_null());
-        std::slice::from_raw_parts(input, input_len)
+        slice::from_raw_parts(input, input_len)
     };
     let input = felts_from_u8s(&input);
 
@@ -82,7 +99,7 @@ pub extern "C" fn c_hash_s128b(
     // let src = result.as_ptr();
     let output = unsafe {
         assert!(!output.is_null());
-        std::slice::from_raw_parts_mut(output, output_len)
+        slice::from_raw_parts_mut(output, output_len)
     };
     output.copy_from_slice(&result);
     count
@@ -102,7 +119,7 @@ pub extern "C" fn c_hash_sw2(
 ) -> usize {
     let input = unsafe {
         assert!(!input.is_null());
-        std::slice::from_raw_parts(input, input_len)
+        slice::from_raw_parts(input, input_len)
     };
     let input = felts_from_u8s(&input);
 
@@ -113,7 +130,7 @@ pub extern "C" fn c_hash_sw2(
     // let src = result.as_ptr();
     let output = unsafe {
         assert!(!output.is_null());
-        std::slice::from_raw_parts_mut(output, output_len)
+        slice::from_raw_parts_mut(output, output_len)
     };
     output.copy_from_slice(&result);
     count
