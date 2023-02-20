@@ -36,24 +36,6 @@ include!("./with_std.rs");
 #[cfg(all(not(feature = "std"), feature = "alloc"))]
 include!("./without_std.rs");
 
-use core::alloc::{GlobalAlloc, Layout};
-
-#[derive(Default)]
-pub struct Allocator;
-
-unsafe impl GlobalAlloc for Allocator {
-    unsafe fn alloc(&self, layout: Layout) -> *mut u8 {
-        libc::malloc(layout.size()) as *mut u8
-    }
-    unsafe fn dealloc(&self, ptr: *mut u8, _layout: Layout) {
-        libc::free(ptr as *mut libc::c_void);
-    }
-}
-
-/// The static global allocator.
-#[global_allocator]
-static GLOBAL_ALLOCATOR: Allocator = Allocator;
-
 use crate::prelude::*;
 
 pub mod convert;
