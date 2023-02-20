@@ -1,9 +1,5 @@
 use crate::convert::felts_from_str;
 use crate::parameters::Parameters;
-use alloc::{
-    string::{String, ToString},
-    vec::Vec,
-};
 use ff::PrimeField;
 use crate::prelude::*;
 
