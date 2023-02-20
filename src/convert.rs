@@ -1,3 +1,4 @@
+use alloc::vec::Vec;
 use ff::PrimeField;
 use crate::prelude::*;
 
