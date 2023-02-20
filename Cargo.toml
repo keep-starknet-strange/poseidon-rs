@@ -12,5 +12,10 @@ readme = "README.md"
 ff = {version="0.13.0", features=["derive"]}
 libc = "0.2.139"
 
+[features]
+default = ["std"]
+std = ["alloc"]
+alloc = []
+
 [lib]
 crate-type = ["staticlib", "lib"]
