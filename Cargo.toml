@@ -1,2 +1,15 @@
-[workspace]
-members = ["core", "starkware"]
+[package]
+name = "poseidon"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+
+[lib]
+crate-type = ["staticlib", "lib"]
+
+[features]
+default = ["std"]
+std = []
+starkware = []
+mina = []

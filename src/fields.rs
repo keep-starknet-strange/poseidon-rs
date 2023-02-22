@@ -29,16 +29,7 @@ pub trait FpCfg<const N: usize> {
     const ZERO: [u64; N] = [0u64; N];
 }
 
-pub trait PrimeField<const N: usize, P: FpCfg<N>>: Field + From<[u64; N]> {
-    fn to_int(&mut self) -> &mut Self {
-        let mut repr: [u64; N] = [0; N];
-        repr[0] = 1;
-        self.mul_assign(&Self::from(repr));
-        self
-    }
-
-    fn from_int(&mut self) -> &mut Self {
-        self.mul_assign(&Self::from(P::RADIX_SQ));
-        self
-    }
+pub trait PrimeField<const N: usize, P: FpCfg<N>>: Field {
+    fn to_int(&mut self) -> &mut Self; 
+    fn from_int(&mut self) -> &mut Self;
 }

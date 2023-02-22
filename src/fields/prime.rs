@@ -5,10 +5,13 @@ use super::{
 
 use core::{
     clone::Clone,
+    convert::{From, TryFrom},
     // debug_assert, unimplemented,
     cmp::{Eq, PartialEq},
-    fmt::{Debug, Formatter, Result},
+    fmt,
+    fmt::{Debug, Formatter},
     marker::{Copy, PhantomData},
+    result::Result,
 };
 
 pub struct Fp<const N: usize, P: FpCfg<N>> {
@@ -17,7 +20,7 @@ pub struct Fp<const N: usize, P: FpCfg<N>> {
 }
 
 impl<const N: usize, P: FpCfg<N>> Debug for Fp<N, P> {
-    fn fmt(&self, f: &mut Formatter<'_>) -> Result {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         self.as_ref().fmt(f)
     }
 }
@@ -52,6 +55,27 @@ impl<const N: usize, P: FpCfg<N>> From<[u64; N]> for Fp<N, P> {
         Self {
             repr: val,
             phantom: PhantomData,
+        }
+    }
+}
+
+impl<const N: usize, P: FpCfg<N>> TryFrom<&[u64]> for Fp<N, P> {
+    type Error = &'static str;
+
+    fn try_from(value: &[u64]) -> Result<Self, Self::Error> {
+        if value.len() != N {
+            Err("Passed wrong number of elements to represent a field element.")
+        }
+        else {
+            let mut val = [0; N];
+            for i in 0..N {
+                val[i] = value[i];
+            }
+            let _ = div_rem(&mut val, &P::MOD, 0);
+            Ok(Self {
+                repr: val,
+                phantom: PhantomData,
+            })
         }
     }
 }
@@ -154,7 +178,19 @@ impl<const N: usize, P: FpCfg<N>> Field for Fp<N, P> {
     }
 }
 
-impl<const N: usize, P: FpCfg<N>> PrimeField<N, P> for Fp<N, P> {}
+impl<const N: usize, P: FpCfg<N>> PrimeField<N, P> for Fp<N, P> {
+    fn to_int(&mut self) -> &mut Self {
+        let mut repr: [u64; N] = [0; N];
+        repr[0] = 1;
+        self.mul_assign(&Self::from(repr));
+        self
+    }
+
+    fn from_int(&mut self) -> &mut Self {
+        self.mul_assign(&Self::from(P::RADIX_SQ));
+        self
+    }
+}
 
 #[cfg(test)]
 mod tests {

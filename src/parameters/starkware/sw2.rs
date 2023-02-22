@@ -1,7 +1,5 @@
-#![no_std]
-
 use core::marker::PhantomData;
-use poseidon::{
+use crate::{
     fields::{prime::Fp, FpCfg},
     permutation::Constants,
     poseidon::Poseidon,
@@ -25,17 +23,17 @@ impl FpCfg<4> for P {
     const NEG_INV: u64 = u64::MAX; // -(MOD^-1) % 2^64
 }
 
-pub type F = Fp<4, P>;
-pub type H = Poseidon<'static, 2, 3, 91, F>;
+pub type GF = Fp<4, P>;
+pub type Hash = Poseidon<'static, 2, 3, 91, GF>;
 
-pub static SW2: Constants<3, 91, F> = Constants {
+pub static CONSTANTS: Constants<3, 91, GF> = Constants {
     n_full_rounds: 8,
     sbox: 3,
     // Field elements are stored in Montgomery form already to avoid extra conversions
     // MDS to_int is [[3, 1, 1], [1, -1, 1], [1, 1, -2]]
     mds: [
         [
-            F {
+            GF {
                 repr: [
                     18446744073709551521,
                     18446744073709551615,
@@ -44,7 +42,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     18446744073709551585,
                     18446744073709551615,
@@ -53,7 +51,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     18446744073709551585,
                     18446744073709551615,
@@ -64,7 +62,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
             },
         ],
         [
-            F {
+            GF {
                 repr: [
                     18446744073709551585,
                     18446744073709551615,
@@ -73,11 +71,11 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [32, 0, 0, 544],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     18446744073709551585,
                     18446744073709551615,
@@ -88,7 +86,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
             },
         ],
         [
-            F {
+            GF {
                 repr: [
                     18446744073709551585,
                     18446744073709551615,
@@ -97,7 +95,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     18446744073709551585,
                     18446744073709551615,
@@ -106,7 +104,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [64, 0, 0, 1088],
                 phantom: PhantomData,
             },
@@ -115,7 +113,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
     rks: [
         [
             // Round 1
-            F {
+            GF {
                 repr: [
                     9243643933561577962,
                     18087611126302680282,
@@ -124,7 +122,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     7853535095351734343,
                     10850711010770646915,
@@ -133,7 +131,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     14487852855283887204,
                     5186719240138179095,
@@ -145,7 +143,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
         ],
         [
             // Round 2
-            F {
+            GF {
                 repr: [
                     3280395077118373336,
                     17795901222489795490,
@@ -154,7 +152,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     8106789448329946608,
                     5622576456418619364,
@@ -163,7 +161,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     595196979161159364,
                     13104152156623721627,
@@ -175,7 +173,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
         ],
         [
             // Round 3
-            F {
+            GF {
                 repr: [
                     7816701695378368721,
                     3357934764826603292,
@@ -184,7 +182,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     636799349004279181,
                     6138586124645004146,
@@ -193,7 +191,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     17291774529514094747,
                     5039440405858006990,
@@ -205,7 +203,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
         ],
         [
             // Round 4
-            F {
+            GF {
                 repr: [
                     11806696651894481589,
                     1092083221520939347,
@@ -214,7 +212,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     13829429898061010046,
                     2611422711440939737,
@@ -223,7 +221,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     13083162048600272883,
                     8232965923506882345,
@@ -235,7 +233,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
         ],
         [
             // Round 5
-            F {
+            GF {
                 repr: [
                     12470629514406685798,
                     11302495035548825343,
@@ -244,7 +242,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     16166443317206696620,
                     2092411839389224988,
@@ -253,7 +251,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     14120941658239655251,
                     2642188447246846335,
@@ -265,7 +263,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
         ],
         [
             // Round 6
-            F {
+            GF {
                 repr: [
                     18142151589019894558,
                     18197850390380265386,
@@ -274,7 +272,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     1838259232375511617,
                     13437586145592764213,
@@ -283,7 +281,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     12813930444938617062,
                     17977170971205650778,
@@ -295,7 +293,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
         ],
         [
             // Round 7
-            F {
+            GF {
                 repr: [
                     5418881224361403044,
                     16174271179784024375,
@@ -304,7 +302,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     17078278631468097978,
                     5613598547500774665,
@@ -313,7 +311,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     5814218018525477564,
                     7042976932945610936,
@@ -325,7 +323,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
         ],
         [
             // Round 8
-            F {
+            GF {
                 repr: [
                     3621258840658417782,
                     12082996430020286330,
@@ -334,7 +332,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     11767630116619037246,
                     5457091587212503719,
@@ -343,7 +341,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     3487618752862434321,
                     4393828912560793107,
@@ -355,7 +353,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
         ],
         [
             // Round 9
-            F {
+            GF {
                 repr: [
                     10036894774740968568,
                     14447752012337165757,
@@ -364,7 +362,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     5960826520244257928,
                     43312879824374923,
@@ -373,7 +371,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     13622430211924427312,
                     14945543747766687960,
@@ -385,7 +383,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
         ],
         [
             // Round 10
-            F {
+            GF {
                 repr: [
                     16625649048788753279,
                     2130521830221044752,
@@ -394,7 +392,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     15505038582876040395,
                     17639260342879331015,
@@ -403,7 +401,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     3740795237722334731,
                     11315915102616095896,
@@ -415,7 +413,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
         ],
         [
             // Round 11
-            F {
+            GF {
                 repr: [
                     5924510277243062862,
                     6138973384706390680,
@@ -424,7 +422,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     9858101512657070363,
                     8490712007598103186,
@@ -433,7 +431,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     12627573865611286226,
                     10584824910125248359,
@@ -445,7 +443,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
         ],
         [
             // Round 12
-            F {
+            GF {
                 repr: [
                     2931475291088863755,
                     4950661838749710683,
@@ -454,7 +452,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     10034130411897787747,
                     5775510134867581262,
@@ -463,7 +461,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     12061382206834670118,
                     1812997140763906163,
@@ -475,7 +473,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
         ],
         [
             // Round 13
-            F {
+            GF {
                 repr: [
                     98131090428155973,
                     12371598924866373366,
@@ -484,7 +482,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     2910886327317613519,
                     2885335970393840241,
@@ -493,7 +491,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     382459515727850142,
                     18215759780714320276,
@@ -505,7 +503,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
         ],
         [
             // Round 14
-            F {
+            GF {
                 repr: [
                     11661884834875533326,
                     7733517268986148244,
@@ -514,7 +512,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     17071763598481838848,
                     15762111567114567007,
@@ -523,7 +521,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     16641766085230847646,
                     5966673110423622783,
@@ -535,7 +533,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
         ],
         [
             // Round 15
-            F {
+            GF {
                 repr: [
                     9966794478050154826,
                     6236502114006974258,
@@ -544,7 +542,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     16783334901488089568,
                     1418142957718768917,
@@ -553,7 +551,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     2280479837291324924,
                     6142787706721617013,
@@ -565,7 +563,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
         ],
         [
             // Round 16
-            F {
+            GF {
                 repr: [
                     5662564296992189264,
                     12323910786559522843,
@@ -574,7 +572,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     10348370643984481549,
                     10441892284960847054,
@@ -583,7 +581,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     7828020300912839125,
                     4627556079715571566,
@@ -595,7 +593,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
         ],
         [
             // Round 17
-            F {
+            GF {
                 repr: [
                     6450769989309954531,
                     10735664482809146967,
@@ -604,7 +602,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     10151963221694466762,
                     11737811890036264082,
@@ -613,7 +611,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     11649812253943218272,
                     2756983657005049784,
@@ -625,7 +623,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
         ],
         [
             // Round 18
-            F {
+            GF {
                 repr: [
                     5917398918060587122,
                     7232317890528840477,
@@ -634,7 +632,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     1130599927973592653,
                     3675560495460478617,
@@ -643,7 +641,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     10573723033409266305,
                     17652340351714110151,
@@ -655,7 +653,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
         ],
         [
             // Round 19
-            F {
+            GF {
                 repr: [
                     694567565438575311,
                     4848923220894621729,
@@ -664,7 +662,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     15443419490163522690,
                     10897567445004415472,
@@ -673,7 +671,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     9255279707050345472,
                     3810202389724143321,
@@ -685,7 +683,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
         ],
         [
             // Round 20
-            F {
+            GF {
                 repr: [
                     14241066555641534463,
                     14360274740802034914,
@@ -694,7 +692,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     9027017268112047813,
                     15675552638768809223,
@@ -703,7 +701,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     1753606436615532053,
                     5118032848943075336,
@@ -715,7 +713,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
         ],
         [
             // Round 21
-            F {
+            GF {
                 repr: [
                     1220507945438388727,
                     16121125489114934099,
@@ -724,7 +722,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     4210021861854799973,
                     12237573586525281162,
@@ -733,7 +731,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     3199209452152258109,
                     9166837679814583546,
@@ -745,7 +743,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
         ],
         [
             // Round 22
-            F {
+            GF {
                 repr: [
                     11389661447543156587,
                     1249480464945703428,
@@ -754,7 +752,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     16451742664310166053,
                     10936132758902482032,
@@ -763,7 +761,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     15879660055855356867,
                     13121887367167835179,
@@ -775,7 +773,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
         ],
         [
             // Round 23
-            F {
+            GF {
                 repr: [
                     15257233821555234430,
                     11539066278057066276,
@@ -784,7 +782,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     12712154365081127549,
                     11123252554362246264,
@@ -793,7 +791,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     3952761873624637487,
                     1271740740409975614,
@@ -805,7 +803,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
         ],
         [
             // Round 24
-            F {
+            GF {
                 repr: [
                     14219477457998157870,
                     15021557515349718131,
@@ -814,7 +812,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     17280902353146833858,
                     2999914325484157345,
@@ -823,7 +821,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     17220497941480924621,
                     11522374472694419035,
@@ -835,7 +833,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
         ],
         [
             // Round 25
-            F {
+            GF {
                 repr: [
                     13511260381888202429,
                     3985985692287721053,
@@ -844,7 +842,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     10441599497804339171,
                     5172385405230510145,
@@ -853,7 +851,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     13735968927903656169,
                     18126254709673743820,
@@ -865,7 +863,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
         ],
         [
             // Round 26
-            F {
+            GF {
                 repr: [
                     12916309517476252882,
                     1696933074240553835,
@@ -874,7 +872,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     2239320242760746631,
                     121452074127639725,
@@ -883,7 +881,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     3475623289312658257,
                     1096960833728598856,
@@ -895,7 +893,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
         ],
         [
             // Round 27
-            F {
+            GF {
                 repr: [
                     5763708159717203935,
                     10107279324344686038,
@@ -904,7 +902,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     13437865057549340872,
                     16772602888863074470,
@@ -913,7 +911,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     9976135943560925106,
                     10343160667427265135,
@@ -925,7 +923,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
         ],
         [
             // Round 28
-            F {
+            GF {
                 repr: [
                     16065313423854703598,
                     8922863354427797605,
@@ -934,7 +932,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     9628484483978363287,
                     14756970792815856621,
@@ -943,7 +941,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     1283565399751327009,
                     2317831505664921827,
@@ -955,7 +953,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
         ],
         [
             // Round 29
-            F {
+            GF {
                 repr: [
                     6774690227711805782,
                     4593136531984929973,
@@ -964,7 +962,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     9431558283045504015,
                     5059464296395726729,
@@ -973,7 +971,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     5450710947610868578,
                     16985198694762833600,
@@ -985,7 +983,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
         ],
         [
             // Round 30
-            F {
+            GF {
                 repr: [
                     8180586643620490953,
                     3732141722651764749,
@@ -994,7 +992,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     4768814850475014387,
                     12583391929613551795,
@@ -1003,7 +1001,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     15652157044699110783,
                     540500330140458895,
@@ -1015,7 +1013,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
         ],
         [
             // Round 31
-            F {
+            GF {
                 repr: [
                     9505101400683879614,
                     8418460852130542255,
@@ -1024,7 +1022,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     15796017403586904935,
                     12320009402381537209,
@@ -1033,7 +1031,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     10625387152017010272,
                     6698829187263523257,
@@ -1045,7 +1043,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
         ],
         [
             // Round 32
-            F {
+            GF {
                 repr: [
                     7467526848810760068,
                     6790954598471937195,
@@ -1054,7 +1052,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     16344200684843737577,
                     10025317819882421423,
@@ -1063,7 +1061,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     194359357646108738,
                     14360574475951991257,
@@ -1075,7 +1073,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
         ],
         [
             // Round 33
-            F {
+            GF {
                 repr: [
                     5913414406641203280,
                     7739954172363375664,
@@ -1084,7 +1082,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     10675962413298071111,
                     12998465291495583170,
@@ -1093,7 +1091,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     9413193215135054093,
                     3621060248857304144,
@@ -1105,7 +1103,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
         ],
         [
             // Round 34
-            F {
+            GF {
                 repr: [
                     14682393657045544346,
                     3206668679389744673,
@@ -1114,7 +1112,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     5673579451045958235,
                     14323147522548278724,
@@ -1123,7 +1121,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     14658573910080958313,
                     5155714625767958575,
@@ -1135,7 +1133,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
         ],
         [
             // Round 35
-            F {
+            GF {
                 repr: [
                     671214552037953183,
                     1071989251289953873,
@@ -1144,7 +1142,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     17108856855014376567,
                     10804254597185352189,
@@ -1153,7 +1151,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     16666002652026897300,
                     5223131328531940320,
@@ -1165,7 +1163,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
         ],
         [
             // Round 36
-            F {
+            GF {
                 repr: [
                     13688957432298760435,
                     3999083250985800745,
@@ -1174,7 +1172,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     365880965722516970,
                     15081421774124621973,
@@ -1183,7 +1181,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     16899435230639161101,
                     3158868278582774715,
@@ -1195,7 +1193,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
         ],
         [
             // Round 37
-            F {
+            GF {
                 repr: [
                     1967959428825266385,
                     8703098212433075932,
@@ -1204,7 +1202,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     6729950135918348341,
                     17690291226187128917,
@@ -1213,7 +1211,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     18022027562018974640,
                     12993057213284741284,
@@ -1225,7 +1223,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
         ],
         [
             // Round 38
-            F {
+            GF {
                 repr: [
                     3771451762216844820,
                     6147094128115469240,
@@ -1234,7 +1232,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     14635632501677776704,
                     12126948033841760440,
@@ -1243,7 +1241,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     14698366544192221048,
                     1398779694081492049,
@@ -1255,7 +1253,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
         ],
         [
             // Round 39
-            F {
+            GF {
                 repr: [
                     13674108626446892464,
                     15599900192497890810,
@@ -1264,7 +1262,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     5136185149403403029,
                     10051453089041974488,
@@ -1273,7 +1271,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     14824585924995933131,
                     1025130670205119278,
@@ -1285,7 +1283,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
         ],
         [
             // Round 40
-            F {
+            GF {
                 repr: [
                     4549473014611156816,
                     7051987822128093496,
@@ -1294,7 +1292,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     9615119457124684041,
                     1766286969535144833,
@@ -1303,7 +1301,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     16296565919815573742,
                     7266390308734580450,
@@ -1315,7 +1313,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
         ],
         [
             // Round 41
-            F {
+            GF {
                 repr: [
                     14795661418972635403,
                     3867722184688057781,
@@ -1324,7 +1322,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     17374926327279318676,
                     8450762771533580189,
@@ -1333,7 +1331,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     3952267634943387511,
                     18273219049487806599,
@@ -1345,7 +1343,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
         ],
         [
             // Round 42
-            F {
+            GF {
                 repr: [
                     12785114459240408914,
                     14524324261061498375,
@@ -1354,7 +1352,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     9399238559015968456,
                     16077415979374375964,
@@ -1363,7 +1361,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     5922534844053544509,
                     11377829663447829309,
@@ -1375,7 +1373,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
         ],
         [
             // Round 43
-            F {
+            GF {
                 repr: [
                     1542468872688505845,
                     12998376756653479204,
@@ -1384,7 +1382,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     13697510688748722492,
                     4357505265339292183,
@@ -1393,7 +1391,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     17859923845810670260,
                     4761272911086364078,
@@ -1405,7 +1403,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
         ],
         [
             // Round 44
-            F {
+            GF {
                 repr: [
                     2016387714589987168,
                     16865770661414275939,
@@ -1414,7 +1412,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     7381654481617977639,
                     2767372695669885599,
@@ -1423,7 +1421,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     483834899071509658,
                     6753969812386528377,
@@ -1435,7 +1433,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
         ],
         [
             // Round 45
-            F {
+            GF {
                 repr: [
                     12282289573789368024,
                     1650686597669311624,
@@ -1444,7 +1442,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     10830195181116156236,
                     368491741730793517,
@@ -1453,7 +1451,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     18282324130413285481,
                     5088950285177334624,
@@ -1465,7 +1463,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
         ],
         [
             // Round 46
-            F {
+            GF {
                 repr: [
                     8827674482481052492,
                     8336920033462100582,
@@ -1474,7 +1472,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     16356299955034569089,
                     1675657038258772929,
@@ -1483,7 +1481,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     15845601752249440971,
                     3780941445184113386,
@@ -1495,7 +1493,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
         ],
         [
             // Round 47
-            F {
+            GF {
                 repr: [
                     2174547237618214440,
                     3888610038497888648,
@@ -1504,7 +1502,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     7701527517587774029,
                     18277737638841850362,
@@ -1513,7 +1511,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     6869776444395985097,
                     5651176936010286604,
@@ -1525,7 +1523,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
         ],
         [
             // Round 48
-            F {
+            GF {
                 repr: [
                     16908456970982198626,
                     12176179683804089147,
@@ -1534,7 +1532,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     3290972596255324553,
                     17832004154531288848,
@@ -1543,7 +1541,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     7239759138190695875,
                     17847573380537910419,
@@ -1555,7 +1553,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
         ],
         [
             // Round 49
-            F {
+            GF {
                 repr: [
                     11363081758793359037,
                     1538202371766688453,
@@ -1564,7 +1562,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     602541009637641467,
                     12028186305001330096,
@@ -1573,7 +1571,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     12725708872687997712,
                     12062638025074172161,
@@ -1585,7 +1583,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
         ],
         [
             // Round 50
-            F {
+            GF {
                 repr: [
                     10129367354009920302,
                     5798730398129943257,
@@ -1594,7 +1592,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     1982882245354490693,
                     11084652031010980503,
@@ -1603,7 +1601,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     10017828728568554790,
                     16329225100909853372,
@@ -1615,7 +1613,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
         ],
         [
             // Round 51
-            F {
+            GF {
                 repr: [
                     9109221190405550030,
                     4049568458506600243,
@@ -1624,7 +1622,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     2755671182507801172,
                     4883595981796246933,
@@ -1633,7 +1631,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     3596076898041113913,
                     5385785661919193143,
@@ -1645,7 +1643,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
         ],
         [
             // Round 52
-            F {
+            GF {
                 repr: [
                     7287641131240009777,
                     9390092283827195665,
@@ -1654,7 +1652,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     17313988825139269443,
                     9017656332904672146,
@@ -1663,7 +1661,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     13984803796500321616,
                     17295086621630434529,
@@ -1675,7 +1673,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
         ],
         [
             // Round 53
-            F {
+            GF {
                 repr: [
                     166130831926558944,
                     8390472735035131144,
@@ -1684,7 +1682,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     4807461537976364316,
                     12676686855922562112,
@@ -1693,7 +1691,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     15318032989650434154,
                     3764978904578152459,
@@ -1705,7 +1703,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
         ],
         [
             // Round 54
-            F {
+            GF {
                 repr: [
                     16114547424758744941,
                     11552162914699739008,
@@ -1714,7 +1712,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     15595869952999912302,
                     1579788066055795645,
@@ -1723,7 +1721,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     3393341145889905335,
                     10355991408151799968,
@@ -1735,7 +1733,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
         ],
         [
             // Round 55
-            F {
+            GF {
                 repr: [
                     11849695269868512352,
                     9636639390910709969,
@@ -1744,7 +1742,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     678246973693536444,
                     7054781922312147680,
@@ -1753,7 +1751,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     5624945513829384805,
                     4434583665866524014,
@@ -1765,7 +1763,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
         ],
         [
             // Round 56
-            F {
+            GF {
                 repr: [
                     8672004448492933583,
                     1058310446984674133,
@@ -1774,7 +1772,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     10382204353365036621,
                     2827655840675476862,
@@ -1783,7 +1781,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     11983031424045460845,
                     9592919725278497428,
@@ -1795,7 +1793,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
         ],
         [
             // Round 57
-            F {
+            GF {
                 repr: [
                     14968349090973164094,
                     5419666962283422864,
@@ -1804,7 +1802,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     9231753623233178344,
                     10622340418603097152,
@@ -1813,7 +1811,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     2249736877624875174,
                     4090971167464076917,
@@ -1825,7 +1823,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
         ],
         [
             // Round 58
-            F {
+            GF {
                 repr: [
                     4378964301990265144,
                     632783657867059159,
@@ -1834,7 +1832,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     17168748738802681396,
                     11927980996573092371,
@@ -1843,7 +1841,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     652409577381086658,
                     17641412120439311749,
@@ -1855,7 +1853,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
         ],
         [
             // Round 59
-            F {
+            GF {
                 repr: [
                     3446130578466826431,
                     7613754890610093701,
@@ -1864,7 +1862,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     3044081565734964564,
                     3865275935881176942,
@@ -1873,7 +1871,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     10458137626319960156,
                     5929838947546650877,
@@ -1885,7 +1883,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
         ],
         [
             // Round 60
-            F {
+            GF {
                 repr: [
                     7259662225174182181,
                     16615611613695658747,
@@ -1894,7 +1892,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     10109433424197684523,
                     13649968104218876508,
@@ -1903,7 +1901,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     1821236595970751010,
                     3380021379563395171,
@@ -1915,7 +1913,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
         ],
         [
             // Round 61
-            F {
+            GF {
                 repr: [
                     6270591434209406749,
                     1182050722270607898,
@@ -1924,7 +1922,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     11515158015829746991,
                     17161082289259031143,
@@ -1933,7 +1931,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     18037350206112904103,
                     17273261944010844240,
@@ -1945,7 +1943,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
         ],
         [
             // Round 62
-            F {
+            GF {
                 repr: [
                     229562820392749086,
                     7439361039024169775,
@@ -1954,7 +1952,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     5920647420963798645,
                     17098611964640994155,
@@ -1963,7 +1961,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     15533473020582886837,
                     10172861913527423843,
@@ -1975,7 +1973,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
         ],
         [
             // Round 63
-            F {
+            GF {
                 repr: [
                     12748801730702061417,
                     13502184008775686336,
@@ -1984,7 +1982,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     7537867748682235809,
                     7327874451836783011,
@@ -1993,7 +1991,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     16668965774095451611,
                     11032469429287231438,
@@ -2005,7 +2003,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
         ],
         [
             // Round 64
-            F {
+            GF {
                 repr: [
                     8295508544839266292,
                     6995211328678714527,
@@ -2014,7 +2012,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     17988053398470112910,
                     937499345423342005,
@@ -2023,7 +2021,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     1287023791300845810,
                     5305104781084393738,
@@ -2035,7 +2033,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
         ],
         [
             // Round 65
-            F {
+            GF {
                 repr: [
                     11559906404265275151,
                     3282226148749756179,
@@ -2044,7 +2042,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     7056293227217971677,
                     11123141461050210891,
@@ -2053,7 +2051,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     13703727340874451106,
                     14812265667793742134,
@@ -2065,7 +2063,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
         ],
         [
             // Round 66
-            F {
+            GF {
                 repr: [
                     11712248759041614411,
                     18399014759094382415,
@@ -2074,7 +2072,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     14006347300274563213,
                     6268277384359491340,
@@ -2083,7 +2081,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     16428607906545714863,
                     12088953414208729315,
@@ -2095,7 +2093,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
         ],
         [
             // Round 67
-            F {
+            GF {
                 repr: [
                     6636097187655146281,
                     10152535093158357636,
@@ -2104,7 +2102,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     5232985009820433478,
                     5774321331312362915,
@@ -2113,7 +2111,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     4496959753982009434,
                     15500193298935012020,
@@ -2125,7 +2123,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
         ],
         [
             // Round 68
-            F {
+            GF {
                 repr: [
                     14130444755329568960,
                     4340724018212173175,
@@ -2134,7 +2132,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     12854995939248460318,
                     17605962662771524090,
@@ -2143,7 +2141,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     13772579382122603298,
                     1255952031497517795,
@@ -2155,7 +2153,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
         ],
         [
             // Round 69
-            F {
+            GF {
                 repr: [
                     4686671200252243902,
                     8542877423138505171,
@@ -2164,7 +2162,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     7277709090087877637,
                     14880244296641419947,
@@ -2173,7 +2171,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     17004157737639364375,
                     664010727200509874,
@@ -2185,7 +2183,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
         ],
         [
             // Round 70
-            F {
+            GF {
                 repr: [
                     16935418345650648126,
                     7613167816327614478,
@@ -2194,7 +2192,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     12010033705867698193,
                     9911931307120365776,
@@ -2203,7 +2201,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     4675525881554209326,
                     43955020525153538,
@@ -2215,7 +2213,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
         ],
         [
             // Round 71
-            F {
+            GF {
                 repr: [
                     14763861015356018947,
                     11138049896738905620,
@@ -2224,7 +2222,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     3652730524671619961,
                     15507906158506232036,
@@ -2233,7 +2231,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     9565388440459623416,
                     11824165362213114222,
@@ -2245,7 +2243,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
         ],
         [
             // Round 72
-            F {
+            GF {
                 repr: [
                     5108170949950554224,
                     17585036634678630688,
@@ -2254,7 +2252,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     5152186350648890968,
                     3922757248870090445,
@@ -2263,7 +2261,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     6218803144184342379,
                     16183463675627846150,
@@ -2275,7 +2273,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
         ],
         [
             // Round 73
-            F {
+            GF {
                 repr: [
                     11005377099851853450,
                     2831926306444287813,
@@ -2284,7 +2282,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     7445409638723095563,
                     265802036493141624,
@@ -2293,7 +2291,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     16919190997079720172,
                     16776070026357537291,
@@ -2305,7 +2303,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
         ],
         [
             // Round 74
-            F {
+            GF {
                 repr: [
                     11195540055256250799,
                     16819487910159083746,
@@ -2314,7 +2312,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     8466713286045287725,
                     4607944321748390537,
@@ -2323,7 +2321,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     18443275231826871851,
                     9678273456565718972,
@@ -2335,7 +2333,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
         ],
         [
             // Round 75
-            F {
+            GF {
                 repr: [
                     5162148167719785113,
                     11966168159704074900,
@@ -2344,7 +2342,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     12752001372995037554,
                     17925161161452029786,
@@ -2353,7 +2351,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     1381443859226626795,
                     7908596123384766303,
@@ -2365,7 +2363,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
         ],
         [
             // Round 76
-            F {
+            GF {
                 repr: [
                     14145153517970630206,
                     4854438977203639714,
@@ -2374,7 +2372,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     415538704391262515,
                     9831116672973431367,
@@ -2383,7 +2381,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     8741245710184839066,
                     12287529218991458543,
@@ -2395,7 +2393,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
         ],
         [
             // Round 77
-            F {
+            GF {
                 repr: [
                     6576257762347310175,
                     14407027214273489669,
@@ -2404,7 +2402,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     9739264977475747449,
                     11452901692634999211,
@@ -2413,7 +2411,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     12708577751926938347,
                     9838420218064308734,
@@ -2425,7 +2423,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
         ],
         [
             // Round 78
-            F {
+            GF {
                 repr: [
                     10340605832584996457,
                     10327258726419813791,
@@ -2434,7 +2432,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     5685179536281940376,
                     11613171744980913999,
@@ -2443,7 +2441,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     18187295423331185406,
                     4268538121951370198,
@@ -2455,7 +2453,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
         ],
         [
             // Round 79
-            F {
+            GF {
                 repr: [
                     11434482562158854411,
                     10626175221057332717,
@@ -2464,7 +2462,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     5873271278051649912,
                     12272204777195619373,
@@ -2473,7 +2471,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     8587556261918152146,
                     13716785079272395888,
@@ -2485,7 +2483,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
         ],
         [
             // Round 80
-            F {
+            GF {
                 repr: [
                     14442139634836722923,
                     11699440148720761671,
@@ -2494,7 +2492,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     3273049629148369887,
                     10901881891612794226,
@@ -2503,7 +2501,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     9096395035438932405,
                     3887644788828845061,
@@ -2515,7 +2513,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
         ],
         [
             // Round 81
-            F {
+            GF {
                 repr: [
                     16766874731960759497,
                     13552940411795194818,
@@ -2524,7 +2522,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     10307483231053604630,
                     17101548271890006464,
@@ -2533,7 +2531,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     9247582159232463012,
                     327759987507192653,
@@ -2545,7 +2543,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
         ],
         [
             // Round 82
-            F {
+            GF {
                 repr: [
                     17654738950397886656,
                     15780578624859879199,
@@ -2554,7 +2552,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     8463981009991105359,
                     346359320216776298,
@@ -2563,7 +2561,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     15479539033684846828,
                     13615341394808247006,
@@ -2575,7 +2573,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
         ],
         [
             // Round 83
-            F {
+            GF {
                 repr: [
                     4345661495913797744,
                     5345050480307289169,
@@ -2584,7 +2582,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     11749020169028114495,
                     13713129446909281065,
@@ -2593,7 +2591,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     9100848398382641903,
                     10127654860236492454,
@@ -2605,7 +2603,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
         ],
         [
             // Round 84
-            F {
+            GF {
                 repr: [
                     17441055936827863455,
                     4390027723363715021,
@@ -2614,7 +2612,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     11151324947632018940,
                     13387831322309949400,
@@ -2623,7 +2621,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     4308792446042047252,
                     9814011755535927973,
@@ -2635,7 +2633,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
         ],
         [
             // Round 85
-            F {
+            GF {
                 repr: [
                     7285832850349650494,
                     17804127068443869575,
@@ -2644,7 +2642,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     15355946349758297994,
                     9836493964199559350,
@@ -2653,7 +2651,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     4211935417666041638,
                     9484362610313964292,
@@ -2665,7 +2663,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
         ],
         [
             // Round 86
-            F {
+            GF {
                 repr: [
                     5851795502418302370,
                     8675138985472200793,
@@ -2674,7 +2672,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     11403959178017110248,
                     214941014243668206,
@@ -2683,7 +2681,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     10232643185482799853,
                     11153125143374298128,
@@ -2695,7 +2693,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
         ],
         [
             // Round 87
-            F {
+            GF {
                 repr: [
                     9289807536571775026,
                     7432122173429756764,
@@ -2704,7 +2702,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     10482726699966188244,
                     5915326032957608029,
@@ -2713,7 +2711,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     12147404814752058322,
                     6145338516208157252,
@@ -2725,7 +2723,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
         ],
         [
             // Round 88
-            F {
+            GF {
                 repr: [
                     9210974568445330512,
                     14855398402534343929,
@@ -2734,7 +2732,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     2186160703848841441,
                     749453658643478731,
@@ -2743,7 +2741,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     8137097877804572510,
                     4194147702398564292,
@@ -2755,7 +2753,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
         ],
         [
             // Round 89
-            F {
+            GF {
                 repr: [
                     15754679985287562033,
                     17144367048005459911,
@@ -2764,7 +2762,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     298970159691700591,
                     12014891315505021636,
@@ -2773,7 +2771,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     2161827243834369197,
                     6529000939326479156,
@@ -2785,7 +2783,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
         ],
         [
             // Round 90
-            F {
+            GF {
                 repr: [
                     17922407737483631270,
                     10846304006776507478,
@@ -2794,7 +2792,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     14309821559636775821,
                     5191281667707819629,
@@ -2803,7 +2801,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     4475858853850722769,
                     4126326734531744171,
@@ -2815,7 +2813,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
         ],
         [
             // Round 91
-            F {
+            GF {
                 repr: [
                     17137171742635080032,
                     13734979251366108230,
@@ -2824,7 +2822,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     18207273213375707676,
                     9125832381882861274,
@@ -2833,7 +2831,7 @@ pub static SW2: Constants<3, 91, F> = Constants {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     11725146126629035967,
                     2224508228469132237,
@@ -2850,19 +2848,19 @@ pub static SW2: Constants<3, 91, F> = Constants {
 mod tests {
     use super::*;
     use core::marker::PhantomData;
-    use poseidon::{
+    use crate::{
         fields::{Field, PrimeField},
         permutation::Sponge,
     };
 
     #[test]
     fn test_hash_simple() {
-        let input = [F::ZERO, F::ZERO];
+        let input = [GF::ZERO, GF::ZERO];
         // Expected in Integer
         // 3446325744004048536138401612021367625846492093718951375866996507163446763827
         // 1590252087433376791875644726012779423683501236913937337746052470473806035332
         let expected = [
-            F {
+            GF {
                 repr: [
                     9679659289224438067,
                     9593607935225213411,
@@ -2871,7 +2869,7 @@ mod tests {
                 ],
                 phantom: PhantomData,
             },
-            F {
+            GF {
                 repr: [
                     11697560501447801220,
                     16552206698782960316,
@@ -2883,9 +2881,9 @@ mod tests {
         ];
         // F{repr: [9807529923596045758, 16536855018464238055, 14664526698940491102, 432130875968301967], phantom: PhantomData},
         // F{repr: [4063038782967151671, 13173406895804981287, 11277348039386025686, 436343559696960954], phantom: PhantomData},
-        let mut spg = H {
-            state: [F::ZERO; 3],
-            constants: &SW2,
+        let mut spg = Hash {
+            state: [GF::ZERO; 3],
+            constants: &CONSTANTS,
         };
         spg.absorb(&input);
         let mut output = spg.squeeze();
