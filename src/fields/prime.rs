@@ -1,13 +1,13 @@
 use super::{
     arithmetic::{adc, add2, div_rem, ge, mac, sub2},
-    Field, FpCfg, PrimeField,
+    Field, FpCfg, Montgomery,
 };
 
 use core::{
     clone::Clone,
-    convert::{From, TryFrom},
     // debug_assert, unimplemented,
     cmp::{Eq, PartialEq},
+    convert::{From, TryFrom},
     fmt,
     fmt::{Debug, Formatter},
     marker::{Copy, PhantomData},
@@ -65,8 +65,7 @@ impl<const N: usize, P: FpCfg<N>> TryFrom<&[u64]> for Fp<N, P> {
     fn try_from(value: &[u64]) -> Result<Self, Self::Error> {
         if value.len() != N {
             Err("Passed wrong number of elements to represent a field element.")
-        }
-        else {
+        } else {
             let mut val = [0; N];
             for i in 0..N {
                 val[i] = value[i];
@@ -178,7 +177,7 @@ impl<const N: usize, P: FpCfg<N>> Field for Fp<N, P> {
     }
 }
 
-impl<const N: usize, P: FpCfg<N>> PrimeField<N, P> for Fp<N, P> {
+impl<const N: usize, P: FpCfg<N>> Montgomery for Fp<N, P> {
     fn to_int(&mut self) -> &mut Self {
         let mut repr: [u64; N] = [0; N];
         repr[0] = 1;

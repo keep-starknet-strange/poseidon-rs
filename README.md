@@ -166,26 +166,68 @@ The following set of parameters are included in the library thus far:
 ### Build
 
 To build poseidon from source:
+
 ```bash
 cargo build --release
 ```
-The build generates 2 librairies located in `target/release`:
-  1. libposeidon.rlib is the rust library file
-  1. libposeidon.so is a shared-library wrapping the rust library with a C-interface
 
-### Test
+#### Variants
+You can add predefined poseidon variants with the features flag, for example:
+
+```bash
+cargo build --release --features starkware
+```
+
+The variants dependency tree is like so:
+
+	| starkware
+	|-- sw2
+	|-- sw3
+	|-- sw4
+	|-- sw8
+	| mina
+	|-- pallas
+	|-- vesta
+
+This means that selecting feature starkware enables all four subvariants: sw2, sw3, sw4 and sw8.
+
+#### std feature
+By default, the library will compile as no_std. In fact, it compiles at the core layer, without even alloc.
+However, no_std is omitted if the feature std is enabled.
+
+#### c_bind feature
+The library can include C-bindings for hash functions through the c_bind feature.
+In that case, one would want to build a staticlib to link it into another program, using for example:
+
+```bash
+cargo rustc --crate-type staticlib --release --features c_bind,starkware
+```
+
+### Tests
 
 To test the rust library:
 ```bash
 cargo test
 ```
-Tests for the C-interface are also available through golang in the tests/go_tests folder.
-From that folder, one can run tests (making sure the shared-library is findable by the linker),
-for example:
-```bashgit 
-LD_LIBRARY_PATH=$(pwd)/../../target/release:$LD_LIBRARY_PATH go test -v 
+
+Tests for the C-interface are also available through golang in the c-bind-tests folder.
+From that folder, one can run tests like so:
+
+```bash 
+go test -v
 ```
 Note that golang must be installed on your system to run the go_tests.
+
+Finally, we can also test that the library compiles with no_std compatibility in the ensure-no-std folder.
+From there, we can compile the test package like so:
+
+```bash
+cargo rustc --target thumbv7em-none-eabihf
+```
+
+The test passes if it compiles.
+Note that you can use another no_std target if you wish, and need to have it installed in your environment.
+
 
 ## Roadmap
 

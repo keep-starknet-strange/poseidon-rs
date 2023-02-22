@@ -1,4 +1,4 @@
-mod starkware;
+pub mod starkware;
 pub use starkware::sw2;
 // pub use starkware::sw3;
 // pub use starkware::sw4;

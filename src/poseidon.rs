@@ -1,10 +1,10 @@
 use crate::{
-    fields::Field,
+    fields::{Field, Montgomery},
     permutation::{Constants, Permutation, Sponge},
 };
 use core::{clone::Clone, marker::Copy};
 
-pub struct Poseidon<'a, const RATE: usize, const SIZE: usize, const N_ROUNDS: usize, GF>
+pub struct GenericPoseidon<'a, const RATE: usize, const SIZE: usize, const N_ROUNDS: usize, GF>
 where
     GF: Field,
 {
@@ -13,7 +13,7 @@ where
 }
 
 impl<'a, const RATE: usize, const SIZE: usize, const N_ROUNDS: usize, GF> Clone
-    for Poseidon<'a, RATE, SIZE, N_ROUNDS, GF>
+    for GenericPoseidon<'a, RATE, SIZE, N_ROUNDS, GF>
 where
     GF: Field,
 {
@@ -26,14 +26,14 @@ where
 }
 
 impl<'a, const RATE: usize, const SIZE: usize, const N_ROUNDS: usize, GF> Copy
-    for Poseidon<'a, RATE, SIZE, N_ROUNDS, GF>
+    for GenericPoseidon<'a, RATE, SIZE, N_ROUNDS, GF>
 where
     GF: Field,
 {
 }
 
 impl<'a, const RATE: usize, const SIZE: usize, const N_ROUNDS: usize, GF> AsRef<[GF; SIZE]>
-    for Poseidon<'a, RATE, SIZE, N_ROUNDS, GF>
+    for GenericPoseidon<'a, RATE, SIZE, N_ROUNDS, GF>
 where
     GF: Field,
 {
@@ -43,7 +43,7 @@ where
 }
 
 impl<'a, const RATE: usize, const SIZE: usize, const N_ROUNDS: usize, GF> AsMut<[GF; SIZE]>
-    for Poseidon<'a, RATE, SIZE, N_ROUNDS, GF>
+    for GenericPoseidon<'a, RATE, SIZE, N_ROUNDS, GF>
 where
     GF: Field,
 {
@@ -53,7 +53,7 @@ where
 }
 
 impl<'a, const RATE: usize, const SIZE: usize, const N_ROUNDS: usize, GF>
-    Poseidon<'a, RATE, SIZE, N_ROUNDS, GF>
+    GenericPoseidon<'a, RATE, SIZE, N_ROUNDS, GF>
 where
     GF: Field,
 {
@@ -97,7 +97,7 @@ where
 }
 
 impl<'a, const RATE: usize, const SIZE: usize, const N_ROUNDS: usize, GF> Permutation
-    for Poseidon<'a, RATE, SIZE, N_ROUNDS, GF>
+    for GenericPoseidon<'a, RATE, SIZE, N_ROUNDS, GF>
 where
     GF: Field,
 {
@@ -125,15 +125,17 @@ where
     }
 }
 
-impl<'a, const RATE: usize, const SIZE: usize, const N_ROUNDS: usize, GF> Sponge<RATE, SIZE, GF>
-    for Poseidon<'a, RATE, SIZE, N_ROUNDS, GF>
+impl<'a, const RATE: usize, const SIZE: usize, const N_ROUNDS: usize, GF> Sponge<RATE, GF>
+    for GenericPoseidon<'a, RATE, SIZE, N_ROUNDS, GF>
 where
-    GF: Field,
+    GF: Montgomery,
 {
     fn absorb(&mut self, input: &[GF; RATE]) {
         let state = self.as_mut();
         for i in 0..RATE {
-            state[i].add_assign(&input[i]);
+            let mut el = input[i];
+            el.from_int();
+            state[i].add_assign(&el);
         }
         self.permute();
     }
@@ -143,8 +145,23 @@ where
         let mut result: [GF; RATE] = [GF::default(); RATE];
         for i in 0..RATE {
             result[i] = state[i];
+            result[i].to_int();
         }
         self.permute();
         result
+    }
+
+    fn hash(&self, inputs: &[GF]) -> [GF; RATE] {
+        assert!(inputs.len() % RATE == 0);
+        let mut sponge = self.clone();
+        let mut input_block: [GF; RATE] = [GF::default(); RATE];
+        for i in 0..(inputs.len() / RATE) {
+            for j in 0..RATE {
+                let idx: usize = RATE * i + j;
+                input_block[j] = inputs[idx];
+            }
+            sponge.absorb(&input_block);
+        }
+        sponge.squeeze()
     }
 }

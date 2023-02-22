@@ -29,7 +29,7 @@ pub trait FpCfg<const N: usize> {
     const ZERO: [u64; N] = [0u64; N];
 }
 
-pub trait PrimeField<const N: usize, P: FpCfg<N>>: Field {
-    fn to_int(&mut self) -> &mut Self; 
+pub trait Montgomery: Field {
+    fn to_int(&mut self) -> &mut Self;
     fn from_int(&mut self) -> &mut Self;
 }

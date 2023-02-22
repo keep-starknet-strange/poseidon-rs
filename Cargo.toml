@@ -6,10 +6,15 @@ edition = "2021"
 [dependencies]
 
 [lib]
-crate-type = ["staticlib", "lib"]
+crate-type = ["lib"]
 
 [features]
-default = ["std"]
+default = []
+c_bind = ["std"]
 std = []
-starkware = []
+starkware = ["sw2"]
+sw2 = []
 mina = []
+
+[profile.release]
+panic = "abort"
