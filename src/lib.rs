@@ -25,11 +25,10 @@
 // Implementation is done for PrimeFields.
 // Question remains of how to handle BinaryFields.
 // Other fields are probably not useful at this point.
-
-// pub mod convert;
-// use convert::{felts_from_u8s, u8s_from_felts};
-
-#![cfg_attr(all(not(feature = "std"), not(test)), no_std)]
+#![cfg_attr(
+    any(target_arch = "wasm32", all(not(feature = "std"), not(test))),
+    no_std
+)]
 
 #[cfg(all(not(feature = "std"), not(test)))]
 pub mod panic;

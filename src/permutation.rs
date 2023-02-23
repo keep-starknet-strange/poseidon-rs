@@ -1,9 +1,5 @@
 use crate::fields::Field;
 
-// use core::{
-//     marker::Copy,
-// };
-
 pub struct Constants<const SIZE: usize, const N_ROUNDS: usize, GF: Field> {
     pub n_full_rounds: usize,
     pub sbox: u32,
