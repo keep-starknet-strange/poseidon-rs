@@ -18,7 +18,7 @@ std = ["alloc", "libc/std", "ff/std"]
 alloc = ["ff/alloc"]
 
 [lib]
-crate-type = ["rlib", "lib"]
+crate-type = ["lib"]
 
 [profile.dev]
 panic = "abort"
