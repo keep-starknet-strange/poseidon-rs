@@ -10,10 +10,15 @@ readme = "README.md"
 
 [dependencies]
 ff = { version = "0.13.0", features = ["derive"], default-features = false }
-libc = { version = "0.2.139", default-features = false }
+libc = { version = "0.2.139", default-features = false}
+
+[features]
+default = ["std"]
+std = ["alloc", "libc/std", "ff/std"]
+alloc = ["ff/alloc"]
 
 [lib]
-crate-type = ["staticlib", "lib"]
+crate-type = ["lib"]
 
 [profile.dev]
 panic = "abort"
