@@ -59,7 +59,7 @@ jobs:
       - name: Setup coverage env
         uses: taiki-e/install-action@cargo-llvm-cov
       - name: Generate code coverage
-        run: cargo llvm-cov --no-default-features --features alloc --lib test --lcov --output-path lcov.info
+        run: cargo llvm-cov --no-default-features --features starkware --lib test --lcov --output-path lcov.info
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3
         with:
