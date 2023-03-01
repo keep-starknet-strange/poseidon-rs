@@ -10,6 +10,6 @@ panic = "abort"
 panic = "abort"
 
 [dependencies]
-poseidon = { path="../" }
+poseidon = { path="../", default-features=false }
 
 [workspace]

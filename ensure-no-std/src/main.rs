@@ -1,9 +1,14 @@
 #![no_std]
 #![no_main]
 
-// #![feature(default_alloc_error_handler)]
+use core::panic::PanicInfo;
 
-// use core::panic::PanicInfo;
+#[panic_handler]
+fn panic(_info: &PanicInfo) -> ! {
+    loop {}
+}
+
+// #![feature(default_alloc_error_handler)]
 
 #[allow(unused_imports)]
 use poseidon;

@@ -12,7 +12,7 @@ pub extern "C" fn c_hash_sw2(
     let mut poseidon = new([GF::ZERO; 3]);
     let input = unsafe {
         assert!(!input.is_null());
-        core::slice::from_raw_parts(input as *const u64, input_len / 8)
+        crate::slice::from_raw_parts(input as *const u64, input_len / 8)
     };
     let mut input_block: [GF; 2] = [GF::default(); 2];
     for i in 0..(input.len() / 8) {
@@ -26,7 +26,7 @@ pub extern "C" fn c_hash_sw2(
     let output = unsafe {
         assert!(!output.is_null());
         assert!(output_len >= 64);
-        core::slice::from_raw_parts_mut(output, output_len)
+        crate::slice::from_raw_parts_mut(output, output_len)
     };
     for i in 0..2 {
         let repr: [u64; 4] = result[i].repr;

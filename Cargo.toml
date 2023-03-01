@@ -9,7 +9,7 @@ edition = "2021"
 crate-type = ["lib"]
 
 [features]
-default = []
+default = ["std"]
 c_bind = ["std"]
 std = []
 starkware = ["sw2"]

@@ -26,12 +26,16 @@
 // Question remains of how to handle BinaryFields.
 // Other fields are probably not useful at this point.
 #![cfg_attr(
-    any(target_arch = "wasm32", all(not(feature = "std"), not(test))),
+    any(target_arch = "wasm32", not(feature = "std")),
     no_std
 )]
 
-#[cfg(all(not(feature = "std"), not(test)))]
-pub mod panic;
+#[cfg(feature = "std")]
+include!("./with_std.rs");
+
+#[cfg(not(feature = "std"))]
+include!("./without_std.rs");
+
 
 pub mod fields;
 pub mod permutation;
