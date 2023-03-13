@@ -1,1 +1,1 @@
-use core::slice;
+pub use core::slice;

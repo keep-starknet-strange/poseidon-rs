@@ -1,27 +1,20 @@
 [package]
 name = "poseidon"
-version = "0.0.1"
-authors = ["thomas-quadratic <thomas.zamojski@quadratic-labs.com>"]
+version = "0.1.0"
 edition = "2021"
-license = "Apache-2.0"
-description = "Poseidon hash implementation"
-repository = "https://github.com/keep-starknet-strange/poseidon-rs"
-readme = "README.md"
 
 [dependencies]
-ff = { version = "0.13.0", features = ["derive"], default-features = false }
-libc = { version = "0.2.139", default-features = false}
-
-[features]
-default = ["std"]
-std = ["alloc", "libc/std", "ff/std"]
-alloc = ["ff/alloc"]
 
 [lib]
 crate-type = ["lib"]
 
-[profile.dev]
-panic = "abort"
+[features]
+default = ["std"]
+c_bind = ["std"]
+std = []
+starkware = ["sw2"]
+sw2 = []
+mina = []
 
 [profile.release]
 panic = "abort"

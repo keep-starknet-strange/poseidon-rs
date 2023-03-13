@@ -1,34 +1,35 @@
-use core::clone::Clone;
-use core::convert::{AsMut, AsRef};
-use core::marker::Copy;
-// use core::cmp::PartialEq;
-use core::default::Default;
+use core::{
+    cmp::{Eq, PartialEq},
+    default::Default,
+    fmt::Debug,
+    marker::Copy,
+};
 // use core::iter::IntoIterator;
 // use core::ops::{Add, Mul};
 
 pub mod arithmetic;
 pub mod prime;
 
-pub trait Zero: Sized {
-    fn zero() -> Self;
-    fn set_zero(&mut self) {
-        *self = Self::zero();
-    }
-    fn is_zero(&self) -> bool;
-}
+pub trait Field: Copy + Default + PartialEq + Eq + Debug {
+    type BaseField;
 
-pub trait One: Sized {
-    fn one() -> Self;
-    fn set_one(&mut self) {
-        *self = Self::one();
-    }
-    fn is_one(&self) -> bool;
-}
+    const ZERO: Self;
+    const ONE: Self;
 
-pub trait Field<const N: usize>:
-    AsMut<[u64; N]> + AsRef<[u64; N]> + Copy + Clone + Default + From<[u64; N]> + Zero
-{
     fn add_assign(&mut self, other: &Self);
     fn mul_assign(&mut self, other: &Self);
-    fn pow_assign(&mut self, other: &Self);
+    fn pow_assign(&mut self, exp: u32);
+}
+
+pub trait FpCfg<const N: usize> {
+    const MOD: [u64; N];
+    const RADIX: [u64; N]; // Montgomery Radix is 2^64N % MOD
+    const RADIX_SQ: [u64; N]; // Radix Square % MOD
+    const NEG_INV: u64; // -(MOD^-1) % 2^64
+    const ZERO: [u64; N] = [0u64; N];
+}
+
+pub trait Montgomery: Field {
+    fn to_int(&mut self) -> &mut Self;
+    fn from_int(&mut self) -> &mut Self;
 }
