@@ -121,7 +121,7 @@ In a full round function, S-boxes are applied to the full state while a partial 
 
 <div align="center">
 
-  #### **Figure 4. Full round overiew**
+  #### **Figure 4. Full round overview**
   <img src="docs/images/rm-poseidon-fig-4.svg">
 
   #### **Figure 5. Partial round overview**
@@ -139,7 +139,7 @@ Several propositions were made to overcome this difficulty in the context of EIP
 > 2. Generate parameters in real time.
 > 3. Pass parameters in as inputs.
 
-As a first step, we have chosen the first approach. Different set of parameters including MDS matrix and the round constants are hard coded in the library, but one could extend it with other sets of parameters.
+As a first step, we have chosen the first approach. Different sets of parameters including MDS matrix and the round constants are hardcoded in the library, but one could extend it with other sets of parameters.
 
 ### Parameters 
 
@@ -169,7 +169,7 @@ To build poseidon from source:
 ```bash
 cargo build --release
 ```
-The build generates 2 librairies located in `target/release`:
+The build generates 2 libraries located in `target/release`:
   1. libposeidon.rlib is the rust library file
   1. libposeidon.so is a shared-library wrapping the rust library with a C-interface
 
